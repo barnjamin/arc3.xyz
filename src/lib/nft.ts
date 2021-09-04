@@ -2,7 +2,6 @@ import { createToken } from "./algorand"
 import { putToIPFS } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
-import { MenuDivider } from "@blueprintjs/core"
 
 /*
 The following is a class and metadata type to support the ARC-0003 standard 
