@@ -3,6 +3,6 @@ type Config = {
     ipfsGateway: string;  // The IPFS gateway url for retrieving files
 }
 
-const conf = require("../../config.json") as Config;
+const conf = require("../config.json") as Config;
 
 export {conf}
