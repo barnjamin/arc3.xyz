@@ -1,7 +1,6 @@
 ARC3 Reference Implementation
 -----------------------------
 
-
 This repository contains an implementation of a dapp that can be used to Mint [ARC3](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md) compliant NFTs
 
 To hack on it start by registering for an account with web3.storage, they provide up to 1TB of IPFS storage.
