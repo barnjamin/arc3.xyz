@@ -19,13 +19,16 @@ export default function AlgorandWalletConnector(props:AlgorandWalletConnectorPro
     const [selectorOpen, setSelectorOpen] = React.useState(false)
 
 
-    React.useEffect(()=>{
-        if(props.sessionWallet.connected()) return
 
-        props.sessionWallet.connect().then(()=>{
-            if(props.sessionWallet.connected()) props.updateWallet(props.sessionWallet)
+    const {sessionWallet,updateWallet} = props
+    React.useEffect(()=>{
+        if(sessionWallet.connected()) return
+
+        sessionWallet.connect().then(()=>{
+            if(sessionWallet.connected()) updateWallet(sessionWallet)
         })
-    }, [props.sessionWallet])
+    }, [sessionWallet, updateWallet])
+
 
     function disconnectWallet() { 
         props.sessionWallet.disconnect()

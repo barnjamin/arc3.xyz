@@ -6,6 +6,11 @@
 	padding: 20px;
 }
 
+.content {
+	display:flex;
+	align-items:center;
+	justify-content: space-evenly;
+}
 
 .content-piece img {
 	max-width: 50%;
