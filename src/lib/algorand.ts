@@ -8,17 +8,12 @@ const client = new algosdk.Algodv2("", "https://testnet.algoexplorerapi.io/", ""
 export async function createToken(wallet: Wallet, md: NFTMetadata, url: string): Promise<number> {
     const addr = wallet.getDefaultAccount()
     const suggested = await getSuggested(10)
+    const create_txn = getAsaCreateTxn(suggested, addr, md.arc3Name(), md.toHash(), url)
 
-    console.log(suggested)
+    //const create_txn = getPayTxn(suggested, addr)
 
-    //const create_txn = getAsaCreateTxn(suggested, addr, md.arc3Name(), md.toHash(), url)
-    const create_txn = getPayTxn(suggested, addr)
-
-    console.log("create_txn", create_txn)
     const [create_txn_s] = await wallet.signTxn([create_txn])
     const result = await sendWait([create_txn_s])
-
-    console.log(result)
 
     return result['asset-index']
 }
