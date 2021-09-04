@@ -18,15 +18,29 @@ export default function AlgorandWalletConnector(props:AlgorandWalletConnectorPro
 
     const [selectorOpen, setSelectorOpen] = React.useState(false)
 
-
-
     const {sessionWallet,updateWallet} = props
     React.useEffect(()=>{
+        console.log(sessionWallet.connected())
         if(sessionWallet.connected()) return
 
-        sessionWallet.connect().then(()=>{
-            if(sessionWallet.connected()) updateWallet(sessionWallet)
+        let interval: any
+        sessionWallet.connect().then((success)=>{
+            if(!success) return
+
+            // Check every 500ms to see if we've connected then kill the interval
+            // This is most useful in the case of walletconnect where it may be several 
+            // seconds before the user connects
+            interval = setInterval(()=>{
+                if(sessionWallet.connected()) {
+                    clearInterval(interval)
+                    updateWallet(sessionWallet)
+                }
+            }, 500)
+
         })
+
+        return ()=>{ clearInterval(interval) }
+
     }, [sessionWallet, updateWallet])
 
 

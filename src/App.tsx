@@ -7,7 +7,7 @@ import AlgorandWalletConnector from './AlgorandWalletConnector'
 function App() {
 
 
-  const sw = new SessionWallet("testnet")
+  const sw = new SessionWallet("TestNet")
 
   const [sessionWallet, setSessionWallet] =  React.useState(sw)
   const [accts, setAccounts] = React.useState(sw.accountList())
@@ -27,6 +27,7 @@ function App() {
         <Navbar.Divider />
       </Navbar.Group>
       <Navbar.Group  align={Alignment.RIGHT}>
+
         <AlgorandWalletConnector  
           darkMode={false}
           sessionWallet={sessionWallet}
@@ -34,6 +35,7 @@ function App() {
           connected={connected} 
           updateWallet={updateWallet}
         />
+
       </Navbar.Group>
       </Navbar>
       <Minter sw={sessionWallet}></Minter>
