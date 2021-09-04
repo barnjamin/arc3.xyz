@@ -20,7 +20,6 @@ export default function AlgorandWalletConnector(props:AlgorandWalletConnectorPro
 
     const {sessionWallet,updateWallet} = props
     React.useEffect(()=>{
-        console.log(sessionWallet.connected())
         if(sessionWallet.connected()) return
 
         let interval: any
