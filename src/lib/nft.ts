@@ -74,7 +74,19 @@ export class NFT {
     }
 
     imgURL(): string {
-        return resolveURL(this.metadata.image)
+
+        const url = resolveURL(this.metadata.image)
+
+        if(url !== this.metadata.image){
+            return url
+        }
+
+        if(this.url.endsWith("metadata.json")){
+            const dir = this.url.substring(0,this.url.length-13)
+            return resolveURL(dir)+this.metadata.image
+        }
+
+        return ""
     }
 }
 
