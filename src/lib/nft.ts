@@ -53,13 +53,8 @@ export class NFT {
     // 
     static async create(file: File | undefined, wallet: Wallet, md: NFTMetadata): Promise<NFT> {
         if (file === undefined) return new NFT(new NFTMetadata())
-
         const result = await putToIPFS(file, md)
-        console.log(result)
-
         const asset_id = await createToken(wallet, md, metaURL(result))
-        console.log(asset_id)
-
         return new NFT(md, fileURL(result, md.name), asset_id)
     }
 
@@ -71,7 +66,6 @@ export class NFT {
     static async fromToken(token: any): Promise<NFT> {
         const url = token['params']['url']
         const md = await getFromIPFS(resolveURL(url))
-        console.log(token)
         return new NFT(md, url, token['index'])
     }
 

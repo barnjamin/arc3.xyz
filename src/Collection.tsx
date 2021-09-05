@@ -25,7 +25,7 @@ export function Collection(props: CollectionProps) {
         })
     }, [address])
 
-    let nfts = [<h3>Checking for ARC3 compliant NFTs...</h3>]
+    let nfts = [<h3 key='looking'>Checking for ARC3 compliant NFTs...</h3>]
     if(loaded ){
         if(collection.length>0){
             nfts = collection.map((nft)=>{
@@ -37,7 +37,7 @@ export function Collection(props: CollectionProps) {
                 )
             })
         }else{
-            nfts = [<h3>You dont have any ARC3 compliant NFTs on {conf.network}, <a href='/mint'>Mint one?</a></h3>]
+            nfts = [<h3 key='none'>You dont have any ARC3 compliant NFTs on {conf.network}, <a href='/mint'>Mint one?</a></h3>]
         }
     }
     return (

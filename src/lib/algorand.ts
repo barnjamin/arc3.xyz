@@ -105,7 +105,8 @@ export async function getCollection(address: string): Promise<any[]> {
 
   const plist = []
   for(const a in results['assets']){
-    plist.push(getToken(results['assets'][a]['asset-id']))
+    if(results['assets'][a]['amount']>0)
+      plist.push(getToken(results['assets'][a]['asset-id']))
   }
 
   const assets = await Promise.all(plist)
