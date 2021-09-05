@@ -1,4 +1,4 @@
-import { Alignment, Navbar } from '@blueprintjs/core';
+import { AnchorButton, Alignment, Navbar } from '@blueprintjs/core';
 import { SessionWallet } from 'algorand-session-wallet';
 import React from 'react';
 import {Minter} from './Minter';
@@ -11,7 +11,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
   useHistory
 } from 'react-router-dom'
 
@@ -33,6 +32,10 @@ function App() {
     setConnected(sw.connected())
   }
 
+  let collectionLink = <div></div>
+  if(connected){
+    collectionLink = <AnchorButton minimal={true} icon='folder-open' href={'/collection/'+sw.getDefaultAccount()} text='Collection' />
+  }
   return (
     <Router>
       <div className="App">
@@ -40,7 +43,8 @@ function App() {
         <Navbar.Group align={Alignment.LEFT}>
           <Navbar.Heading>ARC3.xyz</Navbar.Heading>
           <Navbar.Divider />
-          <Link to='/mint' >Mint</Link>
+          <AnchorButton minimal={true} icon='clean' href='/mint' text='Mint' />
+          {collectionLink}
         </Navbar.Group>
         <Navbar.Group  align={Alignment.RIGHT}>
 

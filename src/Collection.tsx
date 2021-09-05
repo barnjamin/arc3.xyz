@@ -32,7 +32,7 @@ export function Collection(props: CollectionProps) {
                 return (
                 <Card className='content-collection-item' key={nft.asset_id} elevation={Elevation.TWO}>
                     <img alt='nft content' src={nft.imgURL()} />
-                    <a href={'/nft/'+nft.asset_id}>{nft.metadata.name}</a>
+                    <a href={'/nft/'+nft.asset_id}><b>{nft.metadata.name}</b></a>
                 </Card>
                 )
             })

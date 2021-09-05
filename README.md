@@ -13,8 +13,6 @@ Its hosted by [Cloudflare](https://pages.dev) but I cant get it to build there s
 
 WalletConnect on the Algorand Android app does not yet support asset creation transactions, so don't use it or you're gonna have a bad time
 
-App is mostly there, needs some links to the collection page, have to manually set it atm maybe use the connected wallet default address? 
-
 Intention is to build Components to validate and display any Asset type that is minted (Images, GIFS, Audio, Video, PDFs, ...) and possibly collections and fractional NFTs
 
 Also it looks meh and needs a logo 
@@ -41,5 +39,3 @@ I did try to create one with mkcert but browser still complained that CA was inv
 The Wallet Session connection is provided by https://github.com/barnjamin/algorand-session-wallet  and supports AlgoSigner, MyAlgo, WalletConnect (kinda) and an Insecure Wallet (don't use with mainnet accts)
 
 The IPFS storage is provided by https://web3.storage/ (thanks!)
-
-
