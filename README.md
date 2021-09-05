@@ -13,11 +13,13 @@ Its hosted by [Cloudflare](https://pages.dev) but I cant get it to build there s
 
 WalletConnect on the Algorand Android app does not yet support asset creation transactions, so don't use it or you're gonna have a bad time
 
-App is mostly there except after it mints i dont do anything yet, maybe link out to algoexplorer or an nft display page
+App is mostly there, needs some links to the collection page, have to manually set it atm maybe use the connected wallet default address? 
 
-Intention is to build Components to validate and display any Asset type that is minted (Images, GIFS, Audio, Video, PDFs, ...)
+Intention is to build Components to validate and display any Asset type that is minted (Images, GIFS, Audio, Video, PDFs, ...) and possibly collections and fractional NFTs
 
 Also it looks meh and needs a logo 
+
+PRs very welcome
 
 
 Devs
