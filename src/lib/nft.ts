@@ -1,9 +1,11 @@
-import { createToken } from "./algorand"
-import { putToIPFS } from "./ipfs"
+import { createToken, getToken } from "./algorand"
+import { getFromIPFS, putToIPFS } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
+import { conf } from "./config"
 
 /*
+
 The following is a class and metadata type to support the ARC-0003 standard 
 set forth by the Algorand Foundation and Community
 
@@ -11,11 +13,30 @@ https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md
 
 */
 
-function metaURL(cid: string): string {
+export function metaURL(cid: string): string {
     return "ipfs://"+cid+"/metadata.json"
 }
-function fileURL(cid: string, name: string): string {
-    return "https://cloudflare-ipfs.com/ipfs/"+cid+"/"+name
+
+export function fileURL(cid: string, name: string): string {
+    return conf.ipfsGateway + cid+"/"+name
+}
+
+export function resolveURL(url: string): string {
+    const chunks = url.split("://")
+
+    // give up
+    if(chunks.length < 2 ) return url
+
+    const proto = chunks[0]
+
+    switch(proto){
+        case "ipfs":
+            return conf.ipfsGateway + chunks[1]
+        case "https":
+            return url
+    }
+
+    return url
 }
 
 export class NFT {
@@ -40,6 +61,26 @@ export class NFT {
         console.log(asset_id)
 
         return new NFT(md, fileURL(result, md.name), asset_id)
+    }
+
+    static async fromAssetId(assetId: number): Promise<NFT>{
+        const token = await getToken(assetId)
+        return NFT.fromToken(token)
+    }
+
+    static async fromToken(token: any): Promise<NFT> {
+        const url = token['params']['url']
+        const md = await getFromIPFS(resolveURL(url))
+        console.log(token)
+        return new NFT(md, url, token['index'])
+    }
+
+    static isArc3(token: any): boolean {
+        return token.params.name && token.params.name.endsWith("@arc3")
+    }
+
+    imgURL(): string {
+        return resolveURL(this.metadata.image)
     }
 }
 

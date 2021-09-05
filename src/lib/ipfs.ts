@@ -20,11 +20,13 @@ export async function putToIPFS(file: File, md: NFTMetadata){
     return ""
 }
 
-export async function getFromIPFS(meta_hash: string): Promise<NFTMetadata> {
+export async function getFromIPFS(url: string): Promise<NFTMetadata> {
     try {
-        const result = await storage.get(meta_hash)
-        console.log(result)
-        return new NFTMetadata(result.files[0])
+        const req = new Request(url)
+        const resp = await fetch(req)
+        const body = await resp.blob()
+        
+        return JSON.parse(await body.text()) as NFTMetadata
     } catch (err) { console.error("Failed to get Metadata from IPFS:", err) }
 
     return new NFTMetadata() 

@@ -8,6 +8,7 @@ type ImageProps = {
 }
 
 export type MinterProps = {
+    history: any 
     sw: SessionWallet
 }
 
@@ -45,7 +46,10 @@ export function Minter(props: MinterProps){
         md.image_integrity = await imageIntegrity(fileObj)
 
         const nft = await NFT.create(fileObj, props.sw.wallet, md)
-        console.log(nft)
+
+        //TODO nav to nft viewer page
+        props.history.push("/nft/"+nft.asset_id)
+
 
         setLoading(false)
     }

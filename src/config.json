@@ -1,4 +1,6 @@
 {
     "storageToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDhmNUUzRTMwNUNmMjNmRmVDNzRBMUI5QkM2MDkwZUI0RTNhZWYyZEYiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2MzA3NTE0MzM4OTEsIm5hbWUiOiJhcmMzLnh5eiJ9.Efeebv_4qjMHAOe3YUyXKju7IkKUfA4gzfrvXHsEkm8",
-    "ipfsGateway":"https://cloudflare-ipfs.com/ipfs"
+    "ipfsGateway":"https://cloudflare-ipfs.com/ipfs/",
+    "blockExplorer":"https://testnet.algoexplorer.io/",
+    "network":"TestNet"
 }

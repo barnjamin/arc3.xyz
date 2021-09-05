@@ -31,3 +31,23 @@
 	width: 2em;
 	margin-right:0.5em
 }
+
+.content-info ul {
+	list-style-type: none;
+}
+
+.content-info li {
+	margin:2px;
+}
+
+.content-collection {
+	flex-direction:row;
+	flex-wrap:wrap	;
+}
+.content-collection-item {
+	width: 30em;
+	margin: 2em;
+}
+.content-collection-item img {
+	max-width: 100%;
+}

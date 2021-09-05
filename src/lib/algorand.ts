@@ -1,6 +1,6 @@
 import { Wallet } from 'algorand-session-wallet';
 import algosdk, { Transaction } from 'algosdk'
-import { NFTMetadata } from './nft';
+import { NFT, NFTMetadata } from './nft';
 
 const client = new algosdk.Algodv2("", "https://testnet.algoexplorerapi.io/", "")
 
@@ -94,4 +94,26 @@ export async function waitForConfirmation(txId, timeout) {
 
     /* eslint-enable no-await-in-loop */
     throw new Error(`Transaction not confirmed after ${timeout} rounds!`);
+}
+
+export async function getToken(assetId: number): Promise<any> {
+  return await client.getAssetByID(assetId).do()
+}
+
+export async function getCollection(address: string): Promise<any[]> {
+  const results = await client.accountInformation(address).do()
+
+  const plist = []
+  for(const a in results['assets']){
+    plist.push(getToken(results['assets'][a]['asset-id']))
+  }
+
+  const assets = await Promise.all(plist)
+
+  const collectionRequests = assets
+    .filter((a)=>{ return NFT.isArc3(a) })
+    .map((a)=>{ return NFT.fromToken(a) })
+
+  return Promise.all(collectionRequests)
+
 }
