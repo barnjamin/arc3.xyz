@@ -12,9 +12,11 @@ set forth by the Algorand Foundation and Community
 https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md
 
 */
+const METADATA_FILE = "metadata.json"
+const ARC3_SUFFIX = "@arc3"
 
-export function metaURL(cid: string): string {
-    return "ipfs://"+cid+"/metadata.json"
+export function ipfsURL(cid: string): string {
+    return "ipfs://"+cid
 }
 
 export function fileURL(cid: string, name: string): string {
@@ -54,7 +56,7 @@ export class NFT {
     static async create(file: File | undefined, wallet: Wallet, md: NFTMetadata): Promise<NFT> {
         if (file === undefined) return new NFT(new NFTMetadata())
         const result = await putToIPFS(file, md)
-        const asset_id = await createToken(wallet, md, metaURL(result))
+        const asset_id = await createToken(wallet, md, ipfsURL(result))
         return new NFT(md, fileURL(result, md.name), asset_id)
     }
 
@@ -70,7 +72,7 @@ export class NFT {
     }
 
     static isArc3(token: any): boolean {
-        return token.params.name && token.params.name.endsWith("@arc3")
+        return token.params.name && token.params.name.endsWith(ARC3_SUFFIX)
     }
 
     imgURL(): string {
@@ -81,8 +83,8 @@ export class NFT {
             return url
         }
 
-        if(this.url.endsWith("metadata.json")){
-            const dir = this.url.substring(0,this.url.length-13)
+        if(this.url.endsWith(METADATA_FILE)){
+            const dir = this.url.substring(0,this.url.length-METADATA_FILE.length)
             return resolveURL(dir)+this.metadata.image
         }
 
@@ -122,12 +124,12 @@ export class NFTMetadata {
 
     toFile(): File {
         const md_blob = new Blob([JSON.stringify({ ...this }, null, 2)], { type: 'application/json' })
-        return new File([md_blob], "metadata.json")
+        return new File([md_blob], METADATA_FILE)
     }
 
     arc3Name(): string {
         //Max length of asset name is 32 bytes, need 5 for @arc3
-        return this.name.substring(0,27) + "@arc3"
+        return this.name.substring(0,27) + ARC3_SUFFIX
     }
 }
 

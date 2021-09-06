@@ -76,7 +76,6 @@ export function Minter(props: MinterProps){
         return new NFTMetadata({
             name:       meta.name,
             description:meta.description,
-            image:      meta.image,
             image_mimetype: meta.image_mimetype,
             properties: { ...extraProps, ...meta.properties}
         })

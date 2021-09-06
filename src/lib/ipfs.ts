@@ -1,4 +1,4 @@
-import { NFTMetadata } from './nft'
+import { ipfsURL, NFTMetadata } from './nft'
 import {conf} from './config'
 
 /*
@@ -12,10 +12,13 @@ import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 
 const storage = new Web3Storage({token: conf.storageToken})
 
-export async function putToIPFS(file: File, md: NFTMetadata){
+export async function putToIPFS(file: File, md: NFTMetadata): Promise<string> {
     try {
-      const added = await storage.put([file, md.toFile()])
-      return added 
+      const imgAdded = await storage.put([file], {wrapWithDirectory: false})
+      md.image = ipfsURL(imgAdded)
+
+      return await storage.put([md.toFile()], {wrapWithDirectory: false})
+
     } catch (err) { console.error(err) }
     return ""
 }
