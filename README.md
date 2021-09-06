@@ -15,6 +15,8 @@ WalletConnect on the Algorand Android app does not yet support asset creation tr
 
 Intention is to build Components to validate and display any Asset type that is minted (Images, GIFS, Audio, Video, PDFs, ...) and possibly collections and fractional NFTs
 
+A standalone npm package to parse and validate the metadata would be nice to have. 
+
 Also it looks meh and needs a logo 
 
 PRs very welcome
@@ -23,12 +25,16 @@ PRs very welcome
 Devs
 -----
 
-To hack on it start by registering for an account with [web3.storage](https://web3.storage), they provide up to 1TB of IPFS storage.
+To hack on it, start by registering for an account with [web3.storage](https://web3.storage), they provide up to 1TB of IPFS storage.
 
 ```
 git clone https://github.com/barnjamin/arc3.xyz.git
 cd arc3.xyz
 yarn install
+```
+Set your key in the `storageToken` field in `src/config.json` and update whatever other fields there you'd like 
+
+```
 yarn start
 ```
 
@@ -36,6 +42,4 @@ Right now, this will open a browser window with a warning about security, you ca
 
 I did try to create one with mkcert but browser still complained that CA was invalid.
 
-The Wallet Session connection is provided by https://github.com/barnjamin/algorand-session-wallet  and supports AlgoSigner, MyAlgo, WalletConnect (kinda) and an Insecure Wallet (don't use with mainnet accts)
-
-The IPFS storage is provided by https://web3.storage/ (thanks!)
+The Wallet Session connection is provided by https://github.com/barnjamin/algorand-session-wallet  and supports AlgoSigner, MyAlgo, WalletConnect (kinda) and an Insecure Wallet (don't use with MainNet accts)
