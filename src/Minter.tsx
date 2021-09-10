@@ -1,23 +1,31 @@
 import * as React from 'react'
-import { Button, Elevation, FileInput, Card } from "@blueprintjs/core"
+import { Button, Elevation, FileInput, Card, Dialog, Classes } from "@blueprintjs/core"
 import { imageIntegrity, NFT, NFTMetadata } from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
+import { putToIPFS } from './lib/ipfs'
+import{ useHistory } from 'react-router-dom'
 
 type ImageProps = {
     artist: string 
 }
 
 export type MinterProps = {
-    history: any 
     sw: SessionWallet
 }
 
 export function Minter(props: MinterProps){
-    const [meta, setMeta]       = React.useState(new NFTMetadata())
-    const [extraProps, setExtraProps]     = React.useState({artist:""} as ImageProps)
-    const [loading, setLoading] = React.useState(false)
-    const [imgSrc, setImgSrc]   = React.useState<string>();
-    const [fileObj, setFileObj] = React.useState<File>();
+
+    const history = useHistory()
+
+    const [meta, setMeta]               = React.useState(new NFTMetadata())
+    const [extraProps, setExtraProps]   = React.useState({artist:""} as ImageProps)
+    const [loading, setLoading]         = React.useState(false)
+    const [imgSrc, setImgSrc]           = React.useState<string>();
+    const [fileObj, setFileObj]         = React.useState<File>();
+
+    // For MintDialog
+    const [cid, setCID]                 = React.useState("")
+    const [isMinting, setIsMinting]     = React.useState(false)
 
     function setFile(file: File) {
         setFileObj(file)
@@ -36,22 +44,25 @@ export function Minter(props: MinterProps){
         })
     }
 
-    async function mintNFT(event: { stopPropagation: () => void; preventDefault: () => void; }) {
-        event.stopPropagation()
-        event.preventDefault()
+    async function mintNFT() {
 
         setLoading(true) 
 
         const md = captureMetadata()
         md.image_integrity = await imageIntegrity(fileObj)
+        setMeta(md)
 
-        const nft = await NFT.create(fileObj, props.sw.wallet, md)
+        const cid = await putToIPFS(fileObj, md)
+        setCID(cid)
 
-        //TODO nav to nft viewer page
-        props.history.push("/nft/"+nft.asset_id)
-
-
+        setIsMinting(true)
+    }
+    function handleCancelMint(){
+        setIsMinting(false)
         setLoading(false)
+    }
+    function handleSetNFT(nft: NFT){
+        return history.push("/nft/"+nft.asset_id)
     }
 
     function handleChangeMeta(event: { target: any; }) {
@@ -130,6 +141,14 @@ export function Minter(props: MinterProps){
                         text='Mint' />
                 </div>
             </Card>
+            <MintDialog 
+                isMinting={isMinting} 
+                cid={cid} 
+                md={meta} 
+                sw={props.sw}  
+                handleSetNFT={handleSetNFT}
+                handleCancelMint={handleCancelMint} 
+                ></MintDialog>
         </div>
     )
 
@@ -162,5 +181,49 @@ function Uploader(props: UploaderProps) {
                 <img id="gateway-link" alt="NFT" src={props.imgSrc} />
             </div>
         </div>
+    )
+}
+
+type MintDialogProps = {
+    isMinting: boolean
+    cid: string
+    md: NFTMetadata
+    sw: SessionWallet
+    handleSetNFT(NFT)
+    handleCancelMint()
+}
+
+function MintDialog(props: MintDialogProps){
+    const [isLoading, setIsLoading] = React.useState(false)
+
+    function cancel(){
+        props.handleCancelMint()
+    }
+
+    async function mint(){
+        try {
+            setIsLoading(true)
+            const nft = await NFT.create(props.sw.wallet, props.md, props.cid)
+            setIsLoading(false)
+            props.handleSetNFT(nft)
+        } catch (error) {
+           alert("Failed to create nft: "+error) 
+           props.handleCancelMint()
+        }
+    }
+
+    return (
+        <Dialog isOpen={props.isMinting} title="Mint it" >
+            <div className={Classes.DIALOG_BODY}>
+                <p>File uploaded to ipfs {props.md.image} </p>
+                <p>Click "Mint" to create ASA</p>
+            </div>
+            <div className={Classes.DIALOG_FOOTER}>
+                <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                    <Button loading={isLoading} onClick={cancel}>Cancel</Button>
+                    <Button loading={isLoading} onClick={mint}>Mint</Button>
+                </div>
+            </div>
+        </Dialog>
     )
 }

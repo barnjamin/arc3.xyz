@@ -6,7 +6,6 @@ import { conf } from './lib/config'
 import {getCollection} from './lib/algorand' 
 
 export type CollectionProps = {
-    history:  any 
     sw: SessionWallet
 }
 

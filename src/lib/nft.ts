@@ -1,5 +1,5 @@
 import { createToken, getToken } from "./algorand"
-import { getFromIPFS, putToIPFS } from "./ipfs"
+import { getFromIPFS } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
 import { conf } from "./config"
@@ -53,11 +53,9 @@ export class NFT {
     }
 
     // 
-    static async create(file: File | undefined, wallet: Wallet, md: NFTMetadata): Promise<NFT> {
-        if (file === undefined) return new NFT(new NFTMetadata())
-        const result = await putToIPFS(file, md)
-        const asset_id = await createToken(wallet, md, ipfsURL(result))
-        return new NFT(md, fileURL(result, md.name), asset_id)
+    static async create(wallet: Wallet, md: NFTMetadata, cid: string): Promise<NFT> {
+        const asset_id = await createToken(wallet, md, ipfsURL(cid))
+        return new NFT(md, fileURL(cid, md.name), asset_id)
     }
 
     static async fromAssetId(assetId: number): Promise<NFT>{

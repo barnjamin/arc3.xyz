@@ -15,10 +15,11 @@ import {
 } from 'react-router-dom'
 
 
-function App() {
+type AppProps = {
+  history: History
+}
 
-
-  const history = useHistory()
+function App(props: AppProps) {
 
   const sw = new SessionWallet(conf.network)
 
@@ -59,10 +60,10 @@ function App() {
         </Navbar.Group>
         </Navbar>
         <Switch>
-          <Route exact path="/" children={<Minter history={history} sw={sessionWallet}></Minter>} />
-          <Route exact path="/mint" children={ <Minter history={history} sw={sessionWallet}></Minter> }/>
-          <Route path="/nft/:assetId" children={ <NFTViewer history={history} sw={sessionWallet} /> }/>
-          <Route path="/collection/:address" children={ <Collection history={history} sw={sessionWallet} /> }/>
+          <Route exact path="/" children={<Minter  sw={sessionWallet}></Minter>} />
+          <Route exact path="/mint" children={ <Minter  sw={sessionWallet}></Minter> }/>
+          <Route path="/nft/:assetId" children={ <NFTViewer  sw={sessionWallet} /> }/>
+          <Route path="/collection/:address" children={ <Collection  sw={sessionWallet} /> }/>
         </Switch>
       </div>
     </Router>

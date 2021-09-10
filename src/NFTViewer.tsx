@@ -6,7 +6,6 @@ import {useParams} from 'react-router-dom'
 import { conf } from './lib/config'
 
 export type NFTViewerProps = {
-    history:  any 
     sw: SessionWallet
 }
 
