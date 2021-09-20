@@ -1,8 +1,9 @@
 import { Wallet } from 'algorand-session-wallet';
 import algosdk, { Transaction } from 'algosdk'
 import { NFT, NFTMetadata } from './nft';
+import {conf} from './config'
 
-const client = new algosdk.Algodv2("", "https://testnet.algoexplorerapi.io/", "")
+const client = new algosdk.Algodv2("", conf.algod, "")
 
 
 export async function createToken(wallet: Wallet, md: NFTMetadata, url: string): Promise<number> {
@@ -13,6 +14,7 @@ export async function createToken(wallet: Wallet, md: NFTMetadata, url: string):
     //const create_txn = getPayTxn(suggested, addr)
 
     const [create_txn_s] = await wallet.signTxn([create_txn])
+    
     const result = await sendWait([create_txn_s])
 
     return result['asset-index']

@@ -1,13 +1,10 @@
 import * as React from 'react'
-import { Button, Elevation, FileInput, Card, Dialog, Classes } from "@blueprintjs/core"
+import { Button, Elevation, FileInput, Card, Dialog, Classes, Collapse } from "@blueprintjs/core"
 import { imageIntegrity, NFT, NFTMetadata } from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
 import { putToIPFS } from './lib/ipfs'
 import{ useHistory } from 'react-router-dom'
-
-type ImageProps = {
-    artist: string 
-}
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript'
 
 export type MinterProps = {
     sw: SessionWallet
@@ -18,10 +15,12 @@ export function Minter(props: MinterProps){
     const history = useHistory()
 
     const [meta, setMeta]               = React.useState(new NFTMetadata())
-    const [extraProps, setExtraProps]   = React.useState({artist:""} as ImageProps)
     const [loading, setLoading]         = React.useState(false)
     const [imgSrc, setImgSrc]           = React.useState<string>();
     const [fileObj, setFileObj]         = React.useState<File>();
+
+    const [extraProps, setExtraProps]   = React.useState([])
+    const [extraPropsVisible, setExtraPropsVisible] = React.useState(false)
 
     // For MintDialog
     const [cid, setCID]                 = React.useState("")
@@ -45,10 +44,9 @@ export function Minter(props: MinterProps){
     }
 
     async function mintNFT() {
-
         setLoading(true) 
-
         const md = captureMetadata()
+        console.log(md)
         md.image_integrity = await imageIntegrity(fileObj)
         setMeta(md)
 
@@ -57,10 +55,12 @@ export function Minter(props: MinterProps){
 
         setIsMinting(true)
     }
+
     function handleCancelMint(){
         setIsMinting(false)
         setLoading(false)
     }
+
     function handleSetNFT(nft: NFT){
         return history.push("/nft/"+nft.asset_id)
     }
@@ -74,21 +74,33 @@ export function Minter(props: MinterProps){
         setMeta((meta)=>{ return  new NFTMetadata({...meta, [name]:value}) })
     }
 
-    function handleChangeProps(event: { target: any; }) {
-        const target = event.target
+    function handleShowExtraProps(){ setExtraPropsVisible(!extraPropsVisible) }
 
-        const name = target.name as string
-        const value = target.type === 'checkbox' ? target.checked : target.value as string
-
-        setExtraProps((props)=>{ return  {...props, [name]:value} })
+    function handleExtraPropUpdate(e){
+        const idx=parseInt(e.target.dataset.id)
+        if(e.target.id==="name") extraProps[idx][e.target.id]=e.target.value
+        else extraProps[idx][e.target.id] = e.target.value
+        setExtraProps([...extraProps])
     }
 
+    function handleExtraPropRemove(idx: number) {
+        extraProps.splice(idx, 1)
+        setExtraProps([...extraProps])
+    }
+
+    function handleAddExtraProp() { setExtraProps([...extraProps, emptyExtraProp()]) }
+
+    function emptyExtraProp(){ return { name:"", value: "" } }
+
     function captureMetadata(): NFTMetadata {
+        const eprops = extraProps.reduce((all, ep)=>{
+            return {...all, [ep.name]:ep.value}
+        }, {})
         return new NFTMetadata({
             name:       meta.name,
             description:meta.description,
             image_mimetype: meta.image_mimetype,
-            properties: { ...extraProps, ...meta.properties}
+            properties: { ...eprops, ...meta.properties}
         })
     }
 
@@ -109,14 +121,6 @@ export function Minter(props: MinterProps){
                         type='text'
                         id='name'
                         value={meta.name} />
-                    <input
-                        name='artist'
-                        placeholder='Artist...'
-                        className='details-basic details-artist bp3-input bp3-large'
-                        onChange={handleChangeProps}
-                        type='text'
-                        id='artist'
-                        value={extraProps.artist} />
                 </div>
 
                 <div className='container'>
@@ -129,9 +133,42 @@ export function Minter(props: MinterProps){
                         value={meta.description} />
                 </div>
 
-                <div className='container-mint'>
-                    <Button
-                        loading={loading}
+                <div className='container extra-prop-dropdown'>
+                    <Button onClick={handleShowExtraProps}  minimal={true} outlined={true} text={extraPropsVisible?"Hide extra props":"Show extra props"} />
+                    <Collapse isOpen={extraPropsVisible}>
+                        <ul className='extra-prop-list'>
+                        { 
+                            extraProps.map((props, idx)=>{ 
+                                return (
+                                <li className='extra-prop-item' key={idx} >
+                                    <div className='extra-prop-container'>
+                                        <input 
+                                            id="name" 
+                                            data-id={idx}
+                                            name="name" 
+                                            value={props.name}  
+                                            onChange={handleExtraPropUpdate} 
+                                            className='details-basic details-artist bp3-input bp3-large' />
+                                        <input 
+                                            id="value" 
+                                            name="value" 
+                                            data-id={idx}
+                                            value={props.value} 
+                                            onChange={handleExtraPropUpdate} 
+                                            className='details-basic details-artist bp3-input bp3-large' />
+                                        <Button minimal={true} icon='minus' onClick={()=>{ handleExtraPropRemove(idx) }}  />
+                                    </div>
+                                </li>
+                                )
+                            })
+                        }
+                        </ul>
+                        <Button fill={true} icon='plus' minimal={true} onClick={handleAddExtraProp} className='extra-prop-add' />
+                    </Collapse>
+                </div>
+
+                <div className='container container-mint'>
+                    <Button loading={loading}
                         onClick={mintNFT}
                         rightIcon='clean'
                         large={true}

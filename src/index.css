@@ -51,3 +51,22 @@
 .content-collection-item img {
 	max-width: 100%;
 }
+
+.extra-prop-list {
+	list-style: none;
+}
+
+.extra-prop-item {
+	padding:0.1em;
+}
+
+.extra-prop-item input {
+	margin: 0.1em;
+}
+.extra-prop-add {
+	justify-self: right;
+}
+
+.container-mint {
+	justify-content: flex-end;
+}
