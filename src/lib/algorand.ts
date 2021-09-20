@@ -6,17 +6,15 @@ import {conf} from './config'
 const client = new algosdk.Algodv2("", conf.algod, "")
 
 
-export async function createToken(wallet: Wallet, md: NFTMetadata, url: string): Promise<number> {
-    const addr = wallet.getDefaultAccount()
+export async function createToken(wallet: Wallet, md: NFTMetadata, url: string, decimals: number): Promise<number> {
+    const addr      = wallet.getDefaultAccount()
     const suggested = await getSuggested(10)
-    const create_txn = getAsaCreateTxn(suggested, addr, md.arc3Name(), md.toHash(), url)
 
-    //const create_txn = getPayTxn(suggested, addr)
+    const create_txn = getAsaCreateTxn(suggested, addr, md.arc3Name(), md.toHash(), url, decimals)
 
-    const [create_txn_s] = await wallet.signTxn([create_txn])
-    
+    const [create_txn_s]  = await wallet.signTxn([create_txn])
+
     const result = await sendWait([create_txn_s])
-
     return result['asset-index']
 }
 
@@ -35,7 +33,7 @@ export function getPayTxn(suggestedParams: any, addr: string): Transaction {
     })
 }
 
-export function getAsaCreateTxn(suggestedParams: any, addr: string, name: string, mdhash: Uint8Array, url: string): Transaction {
+export function getAsaCreateTxn(suggestedParams: any, addr: string, name: string, mdhash: Uint8Array, url: string, decimals:  number): Transaction {
     return  new Transaction({
         from: addr,
         assetName: name,
@@ -45,8 +43,8 @@ export function getAsaCreateTxn(suggestedParams: any, addr: string, name: string
         assetReserve: addr,
         assetClawback: addr,
         assetFreeze: addr,
-        assetTotal: 1,
-        assetDecimals: 0,
+        assetTotal: Math.pow(10, decimals),
+        assetDecimals: decimals,
         type: 'acfg',
         ...suggestedParams
     })

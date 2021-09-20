@@ -54,7 +54,7 @@ export class NFT {
 
     // 
     static async create(wallet: Wallet, md: NFTMetadata, cid: string): Promise<NFT> {
-        const asset_id = await createToken(wallet, md, ipfsURL(cid))
+        const asset_id = await createToken(wallet, md, ipfsURL(cid), md.decimals)
         return new NFT(md, fileURL(cid, md.name), asset_id)
     }
 
@@ -102,6 +102,7 @@ export class NFTMetadata {
     description: string = ""
 
     image: string = ""
+    decimals?: number = 0
     image_integrity?: string = ""
     image_mimetype?: string = ""
 

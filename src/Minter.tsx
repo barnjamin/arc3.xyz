@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Elevation, FileInput, Card, Dialog, Classes, Collapse } from "@blueprintjs/core"
+import { Button, Elevation, FileInput, Card, Dialog, Classes, Collapse, NumericInput, FormGroup } from "@blueprintjs/core"
 import { imageIntegrity, NFT, NFTMetadata } from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
 import { putToIPFS } from './lib/ipfs'
@@ -18,6 +18,7 @@ export function Minter(props: MinterProps){
     const [loading, setLoading]         = React.useState(false)
     const [imgSrc, setImgSrc]           = React.useState<string>();
     const [fileObj, setFileObj]         = React.useState<File>();
+    const [decimals, setDecimals]       = React.useState(0)
 
     const [extraProps, setExtraProps]   = React.useState([])
     const [extraPropsVisible, setExtraPropsVisible] = React.useState(false)
@@ -46,7 +47,6 @@ export function Minter(props: MinterProps){
     async function mintNFT() {
         setLoading(true) 
         const md = captureMetadata()
-        console.log(md)
         md.image_integrity = await imageIntegrity(fileObj)
         setMeta(md)
 
@@ -65,6 +65,8 @@ export function Minter(props: MinterProps){
         return history.push("/nft/"+nft.asset_id)
     }
 
+    function handleChangeDecimals(v: number){ setDecimals(v) }
+
     function handleChangeMeta(event: { target: any; }) {
         const target = event.target
 
@@ -75,32 +77,25 @@ export function Minter(props: MinterProps){
     }
 
     function handleShowExtraProps(){ setExtraPropsVisible(!extraPropsVisible) }
-
     function handleExtraPropUpdate(e){
         const idx=parseInt(e.target.dataset.id)
         if(e.target.id==="name") extraProps[idx][e.target.id]=e.target.value
         else extraProps[idx][e.target.id] = e.target.value
         setExtraProps([...extraProps])
     }
-
-    function handleExtraPropRemove(idx: number) {
-        extraProps.splice(idx, 1)
-        setExtraProps([...extraProps])
-    }
-
+    function handleExtraPropRemove(idx: number) { extraProps.splice(idx, 1); setExtraProps([...extraProps]) }
     function handleAddExtraProp() { setExtraProps([...extraProps, emptyExtraProp()]) }
-
     function emptyExtraProp(){ return { name:"", value: "" } }
 
+
     function captureMetadata(): NFTMetadata {
-        const eprops = extraProps.reduce((all, ep)=>{
-            return {...all, [ep.name]:ep.value}
-        }, {})
+        const eprops = extraProps.reduce((all, ep)=>{ return {...all, [ep.name]:ep.value} }, {})
         return new NFTMetadata({
-            name:       meta.name,
-            description:meta.description,
+            name:           meta.name,
+            description:    meta.description,
             image_mimetype: meta.image_mimetype,
-            properties: { ...eprops, ...meta.properties}
+            decimals:       decimals,
+            properties:     { ...eprops, ...meta.properties}
         })
     }
 
@@ -113,58 +108,87 @@ export function Minter(props: MinterProps){
                     {...meta} />
 
                 <div className='container' >
-                    <input
-                        name='name'
-                        placeholder='Title...'
-                        className='details-basic details-title bp3-input bp3-large'
-                        onChange={handleChangeMeta}
-                        type='text'
-                        id='name'
-                        value={meta.name} />
+                    <FormGroup 
+                        helperText="The Name for this asset"
+                        label="Name"
+                        labelFor="name"
+                        labelInfo="(required)" >
+                        <input
+                            name='name'
+                            placeholder='Name'
+                            className='details-basic details-title bp3-input bp3-large'
+                            onChange={handleChangeMeta}
+                            type='text'
+                            id='name'
+                            value={meta.name} />
+                    </FormGroup>
                 </div>
 
                 <div className='container'>
-                    <textarea
-                        placeholder='Description...'
-                        className='details-description bp3-input bp3-large'
-                        onChange={handleChangeMeta}
-                        name='description'
-                        id='description'
-                        value={meta.description} />
+                    <FormGroup 
+                        helperText="A description of this asset"
+                        label="Description"
+                        labelFor="description"
+                        labelInfo="(required)" >
+                        <textarea
+                            rows={10}
+                            cols={30}
+                            placeholder='Description'
+                            className='details-description bp3-input bp3-large'
+                            onChange={handleChangeMeta}
+                            name='description'
+                            id='description'
+                            value={meta.description} />
+                    </FormGroup>
+                </div>
+
+                <div className='container'>
+                    <FormGroup 
+                        helperText="The number of decimals for this asset, increases number of units"
+                        label="Decimals"
+                        labelFor="decimals"
+                        labelInfo="(A value > 0 is considered a 'Fractional NFT')" >
+                        <NumericInput 
+                            defaultValue={decimals} min={0} max={19} 
+                            name='decimals'
+                            id='decimals' 
+                            fill={true}
+                            onValueChange={handleChangeDecimals} />
+                    </FormGroup>
                 </div>
 
                 <div className='container extra-prop-dropdown'>
-                    <Button onClick={handleShowExtraProps}  minimal={true} outlined={true} text={extraPropsVisible?"Hide extra props":"Show extra props"} />
-                    <Collapse isOpen={extraPropsVisible}>
-                        <ul className='extra-prop-list'>
-                        { 
-                            extraProps.map((props, idx)=>{ 
-                                return (
-                                <li className='extra-prop-item' key={idx} >
-                                    <div className='extra-prop-container'>
-                                        <input 
-                                            id="name" 
-                                            data-id={idx}
-                                            name="name" 
-                                            value={props.name}  
-                                            onChange={handleExtraPropUpdate} 
-                                            className='details-basic details-artist bp3-input bp3-large' />
-                                        <input 
-                                            id="value" 
-                                            name="value" 
-                                            data-id={idx}
-                                            value={props.value} 
-                                            onChange={handleExtraPropUpdate} 
-                                            className='details-basic details-artist bp3-input bp3-large' />
-                                        <Button minimal={true} icon='minus' onClick={()=>{ handleExtraPropRemove(idx) }}  />
-                                    </div>
-                                </li>
-                                )
-                            })
-                        }
-                        </ul>
-                        <Button fill={true} icon='plus' minimal={true} onClick={handleAddExtraProp} className='extra-prop-add' />
-                    </Collapse>
+                        <Button onClick={handleShowExtraProps}  minimal={true} outlined={true} text={extraPropsVisible?"Hide extra props":"Show extra props"} />
+                        <Collapse isOpen={extraPropsVisible}>
+                            <ul className='extra-prop-list'>
+                            { 
+                                extraProps.map((props, idx)=>{ 
+                                    return (
+                                    <li className='extra-prop-item' key={idx} >
+                                        <div className='extra-prop-container'>
+                                            <input 
+                                                id="name" 
+                                                data-id={idx}
+                                                name="name" 
+                                                value={props.name}  
+                                                onChange={handleExtraPropUpdate} 
+                                                className='details-basic details-artist bp3-input bp3-large' />
+                                            <input 
+                                                id="value" 
+                                                name="value" 
+                                                data-id={idx}
+                                                value={props.value} 
+                                                onChange={handleExtraPropUpdate} 
+                                                className='details-basic details-artist bp3-input bp3-large' />
+                                            <Button minimal={true} icon='minus' onClick={()=>{ handleExtraPropRemove(idx) }}  />
+                                        </div>
+                                    </li>
+                                    )
+                                })
+                            }
+                            </ul>
+                            <Button fill={true} icon='plus' minimal={true} onClick={handleAddExtraProp} className='extra-prop-add' />
+                        </Collapse>
                 </div>
 
                 <div className='container container-mint'>
@@ -234,6 +258,7 @@ function MintDialog(props: MintDialogProps){
     const [isLoading, setIsLoading] = React.useState(false)
 
     function cancel(){
+        setIsLoading(false)
         props.handleCancelMint()
     }
 
@@ -245,6 +270,7 @@ function MintDialog(props: MintDialogProps){
             props.handleSetNFT(nft)
         } catch (error) {
            alert("Failed to create nft: "+error) 
+           setIsLoading(false)
            props.handleCancelMint()
         }
     }
