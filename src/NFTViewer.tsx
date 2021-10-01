@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Elevation, Card } from "@blueprintjs/core"
+import { Elevation, Card, Icon } from "@blueprintjs/core"
 import { NFT, NFTMetadata } from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
@@ -22,6 +22,7 @@ export function NFTViewer(props: NFTViewerProps) {
 
         NFT.fromAssetId(assetId).then((nft)=>{ 
             if(!subscribed) return
+            console.log(nft)
             setNFT(nft) 
             setLoaded(true)
         })
@@ -35,20 +36,22 @@ export function NFTViewer(props: NFTViewerProps) {
     if(loaded){
         img = <img alt='nft' src={nft.imgURL()}/>
 
-        const extraProps = Object.keys(nft.metadata.properties).map((key,idx)=>{
+        const extraProps = nft.metadata.properties?Object.keys(nft.metadata.properties).map((key,idx)=>{
                 let prop = nft.metadata.properties[key]
                 if (typeof prop === 'object'){ prop = JSON.stringify(prop) }
                 return (<li key={key} ><b>{key}: </b>{prop.toString()}</li>)
-        })
+        }):[<li key={'none'} >No metadata available</li>]
 
         meta = (
             <ul>
+
                 <li><b>name: </b>{nft.metadata.name}</li>
                 <li><b>description: </b>{nft.metadata.description}</li>
                 <hr/>
                 {extraProps}
                 <hr/>
                 <li><a href={conf.blockExplorer + "asset/" + assetId} >View on Block Explorer</a></li>
+                <li><b>Arc 3?:</b>{nft.arc3?"Yes":"No"}</li>
             </ul>
         )
     }

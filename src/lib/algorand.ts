@@ -112,8 +112,8 @@ export async function getCollection(address: string): Promise<any[]> {
   const assets = await Promise.all(plist)
 
   const collectionRequests = assets
-    .filter((a)=>{ return NFT.isArc3(a) })
     .map((a)=>{ return NFT.fromToken(a) })
+    //.filter((a)=>{ return NFT.isArc3(a) })
 
   return Promise.all(collectionRequests)
 

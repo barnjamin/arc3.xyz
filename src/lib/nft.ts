@@ -1,8 +1,9 @@
 import { createToken, getToken } from "./algorand"
-import { getFromIPFS } from "./ipfs"
+import { getMdFromIPFS } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
 import { conf } from "./config"
+import { Utils } from "@blueprintjs/core"
 
 /*
 
@@ -43,6 +44,7 @@ export function resolveURL(url: string): string {
 
 export class NFT {
     url: string
+    arc3: boolean
     asset_id: number // ASA index
     metadata: NFTMetadata
 
@@ -65,8 +67,24 @@ export class NFT {
 
     static async fromToken(token: any): Promise<NFT> {
         const url = token['params']['url']
-        const md = await getFromIPFS(resolveURL(url))
+
+        try {
+            const md = await getMdFromIPFS(resolveURL(url))
+            const nft = new NFT(md, url, token['index'])
+            nft.arc3 = true
+            return nft 
+        } catch (error) {
+            //console.error("Not metadata file")                     
+        }
+
+        const md = new NFTMetadata({
+            name:token['params']['name'],
+            image: url,
+            decimals: token['params']['decimals'],
+        })
+
         return new NFT(md, url, token['index'])
+
     }
 
     static isArc3(token: any): boolean {
@@ -86,7 +104,7 @@ export class NFT {
             return resolveURL(dir)+this.metadata.image
         }
 
-        return ""
+        return url 
     }
 }
 

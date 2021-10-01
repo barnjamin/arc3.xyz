@@ -23,16 +23,17 @@ export async function putToIPFS(file: File, md: NFTMetadata): Promise<string> {
     return ""
 }
 
-export async function getFromIPFS(url: string): Promise<NFTMetadata> {
-    try {
-        const req = new Request(url)
-        const resp = await fetch(req)
-        const body = await resp.blob()
-        
-        return JSON.parse(await body.text()) as NFTMetadata
-    } catch (err) { console.error("Failed to get Metadata from IPFS:", err) }
 
-    return new NFTMetadata() 
+export async function getMdFromIPFS(url: string): Promise<NFTMetadata> {
+    const req = new Request(url)
+    const resp = await fetch(req)
+    const body = await resp.blob()
+    
+    const md = JSON.parse(await body.text()) as NFTMetadata
+
+    if(md.image === "") throw new Error("Not Arc3 metadata")
+
+    return md 
 }
 
 
