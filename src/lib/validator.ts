@@ -23,15 +23,14 @@ const validators = {
 }
 
 
-//TODO: return a list of reasons its invalid
-export function validateArc3(nft: NFT): boolean {
-    let valid = true
-    for(const k in validators){
-        const v = validators[k](nft)
-        //Just log the reasons for now
-        console.log(k, v)
+export function validArc3(nft: NFT): boolean {
+    return validateArc3(nft).length==0
+}
 
-        valid = valid && v
+export function validateArc3(nft: NFT): string[] {
+    const invalid = []
+    for(const k in validators){
+        if(!validators[k](nft)) invalid.push(k)
     }
-    return valid
+    return invalid
 }

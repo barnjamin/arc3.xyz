@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { Elevation, Card, Icon } from "@blueprintjs/core"
 import { NFT, NFTMetadata} from './lib/nft'
-import {validateArc3} from './lib/validator'
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
 import { conf, getAddrUrl, getAsaUrl } from './lib/config'
+import { validArc3, validateArc3 } from './lib/validator'
 
 export type NFTViewerProps = {
     sw: SessionWallet
@@ -44,6 +44,10 @@ export function NFTViewer(props: NFTViewerProps) {
                 return (<li key={key} ><b>{key}: </b>{prop.toString()}</li>)
         }):[<li key={'none'} >No metadata</li>]
 
+        const arc3Invalids = validateArc3(nft).map(test=>{
+            return (<li key={test} > <b>{test}</b> </li>) 
+        })
+
         meta = (
             <ul>
                 <h5>Token Details</h5>
@@ -59,6 +63,9 @@ export function NFTViewer(props: NFTViewerProps) {
                 <hr/>
                 <h5>Metadata</h5>
                 {mdProps}
+                <hr />
+                <h5>ARC3 tests failing</h5>
+                {arc3Invalids}
             </ul>
         )
     }
