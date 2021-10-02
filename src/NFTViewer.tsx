@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Elevation, Card, Icon } from "@blueprintjs/core"
-import { NFT, NFTMetadata } from './lib/nft'
+import { NFT, NFTMetadata, validateArc3 } from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
-import { conf } from './lib/config'
+import { conf, getAddrUrl, getAsaUrl } from './lib/config'
 
 export type NFTViewerProps = {
     sw: SessionWallet
@@ -22,12 +22,12 @@ export function NFTViewer(props: NFTViewerProps) {
 
         NFT.fromAssetId(assetId).then((nft)=>{ 
             if(!subscribed) return
-            console.log(nft)
+
             setNFT(nft) 
             setLoaded(true)
         })
 
-        return ()=>{ subscribed= false }
+        return ()=>{ subscribed = false }
     }, [assetId])
 
     let img = <div></div>
@@ -36,22 +36,28 @@ export function NFTViewer(props: NFTViewerProps) {
     if(loaded){
         img = <img alt='nft' src={nft.imgURL()}/>
 
-        const extraProps = nft.metadata.properties?Object.keys(nft.metadata.properties).map((key,idx)=>{
-                let prop = nft.metadata.properties[key]
+        const mdProps = nft.metadata?Object.keys(nft.metadata).map((key,idx)=>{
+                let prop = nft.metadata[key]
+                if (prop === undefined) { prop = "" }
                 if (typeof prop === 'object'){ prop = JSON.stringify(prop) }
                 return (<li key={key} ><b>{key}: </b>{prop.toString()}</li>)
-        }):[<li key={'none'} >No metadata available</li>]
+        }):[<li key={'none'} >No metadata</li>]
 
         meta = (
             <ul>
+                <h5>Token Details</h5>
 
-                <li><b>name: </b>{nft.metadata.name}</li>
-                <li><b>description: </b>{nft.metadata.description}</li>
+                <li><b>ASA id: </b><a href={getAsaUrl(nft.token.id)} >{nft.token.id}</a></li>
+                <li><b>name: </b>{nft.token.name}</li>
+                <li><b>unit name: </b>{nft.token.unitName}</li>
+                <li><b>total: </b>{nft.token.total}</li>
+                <li><b>url: </b> <a href={nft.token.url} >{nft.token.url}</a></li>
+                <li><b>creator: </b><a href={getAddrUrl(nft.token.creator)} >{nft.token.creator}</a></li>
+                <li><b>freeze: </b><a href={getAddrUrl(nft.token.creator)} >{nft.token.freeze}</a></li>
+                <li><b>manager: </b><a href={getAddrUrl(nft.token.creator)} >{nft.token.manager}</a></li>
                 <hr/>
-                {extraProps}
-                <hr/>
-                <li><a href={conf.blockExplorer + "asset/" + assetId} >View on Block Explorer</a></li>
-                <li><b>Arc 3?:</b>{nft.arc3?"Yes":"No"}</li>
+                <h5>Metadata</h5>
+                {mdProps}
             </ul>
         )
     }

@@ -4,6 +4,7 @@ import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
 import { conf } from './lib/config'
 import {getCollection} from './lib/algorand' 
+import { validateArc3 } from './lib/nft'
 
 export type CollectionProps = {
     sw: SessionWallet
@@ -29,11 +30,12 @@ export function Collection(props: CollectionProps) {
         if(collection.length>0){
             nfts = collection.map((nft)=>{
                 const md = nft.metadata
-                const icon = nft.arc3?"confirm":"circle"
+                console.log(nft.token)
+                const icon = validateArc3(nft)?"confirm":"circle"
                 return (
-                <Card className='content-collection-item' key={nft.asset_id} elevation={Elevation.TWO}>
+                <Card className='content-collection-item' key={nft.token.id} elevation={Elevation.TWO}>
                     <img alt='nft content' src={nft.imgURL()} />
-                    <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.asset_id}><b>{md.title?md.title:md.name}</b></AnchorButton>
+                    <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.token.id}><b>{md.name?md.name:nft.token.name}</b></AnchorButton>
                 </Card>
                 )
             })

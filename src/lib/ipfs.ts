@@ -4,9 +4,8 @@ import {conf} from './config'
 /*
  Currently an issue with resolving ipfs-car module in web3.storage when using react-scripts
  We just use the prebuilt one but with no types we have to just ignore the issue for now
-*/
-
 //import { Web3Storage } from 'web3.storage'
+*/
 // @ts-ignore
 import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 
@@ -24,16 +23,18 @@ export async function putToIPFS(file: File, md: NFTMetadata): Promise<string> {
 }
 
 
-export async function getMdFromIPFS(url: string): Promise<NFTMetadata> {
+export async function getMimeTypeFromIpfs(url: string): Promise<string> {
+    const req = new Request(url, { method:"HEAD" })
+    const resp = await fetch(req)
+    return resp.headers.get("Content-Type")
+}
+
+
+export async function getMetaFromIpfs(url: string): Promise<NFTMetadata> {
     const req = new Request(url)
     const resp = await fetch(req)
     const body = await resp.blob()
-    
-    const md = JSON.parse(await body.text()) as NFTMetadata
-
-    if(md.image === "") throw new Error("Not Arc3 metadata")
-
-    return md 
+    return new NFTMetadata(JSON.parse(await body.text())) 
 }
 
 
