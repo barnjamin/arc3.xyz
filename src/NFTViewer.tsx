@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Elevation, Card, Icon } from "@blueprintjs/core"
-import { NFT, NFTMetadata, validateArc3 } from './lib/nft'
+import { NFT, NFTMetadata} from './lib/nft'
+import {validateArc3} from './lib/validator'
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
 import { conf, getAddrUrl, getAsaUrl } from './lib/config'

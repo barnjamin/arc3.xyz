@@ -14,9 +14,9 @@ https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md
 
 */
 
-const METADATA_FILE = "metadata.json"
-const ARC3_SUFFIX = "@arc3"
-const JSON_TYPE = 'application/json'
+export const METADATA_FILE = "metadata.json"
+export const ARC3_SUFFIX = "@arc3"
+export const JSON_TYPE = 'application/json'
 
 export function ipfsURL(cid: string): string { return "ipfs://"+cid }
 export function fileURL(cid: string, name: string): string { return conf.ipfsGateway + cid+"/"+name }
@@ -45,29 +45,6 @@ export async function imageIntegrity(file: File): Promise<string> {
     const hash = new Uint8Array(sha256.digest(bytes));
     return "sha256-"+Buffer.from(hash).toString("base64")
 }
-
-
-// TODO return the reasons for failing, maybe an array of validation functions 
-// where [].any(false) == invalid and can provide info about each one
-export function validateArc3(nft: NFT): boolean {
-    // Check that url points to metadata
-    const mdPointer = nft.urlMimeType === JSON_TYPE 
-    console.log("Md pointer?", mdPointer)
-
-    // Check that metadata hash matches
-    const mdHash = nft.token.metadataHash === Buffer.from(nft.metadata.toHash()).toString("base64")
-    console.log("Md hash?", mdHash)
-
-    // Check that total is valid log(10)
-    const total = nft.token.total / Math.pow(10, nft.token.decimals) === 1
-    console.log("total?", total)
-
-    // TODO: Check that metadata contains correct fields
-    // TODO: Check that integrity hashes are valid
-
-    return mdPointer && mdHash && total
-}
-
 
 export class Token {
     id:  number         // Asset Idx 
