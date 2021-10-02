@@ -1,6 +1,6 @@
 import { Wallet } from 'algorand-session-wallet';
 import algosdk, { Transaction } from 'algosdk'
-import { NFT, NFTMetadata } from './nft';
+import { NFT, NFTMetadata, Token } from './nft';
 import {conf} from './config'
 
 const client = new algosdk.Algodv2("", conf.algod, "")
@@ -112,8 +112,8 @@ export async function getCollection(address: string): Promise<any[]> {
   const assets = await Promise.all(plist)
 
   const collectionRequests = assets
-    .filter((a)=>{ return NFT.isArc3(a) })
     .map((a)=>{ return NFT.fromToken(a) })
+    //.filter((a)=>{ return NFT.isArc3(a) })
 
   return Promise.all(collectionRequests)
 

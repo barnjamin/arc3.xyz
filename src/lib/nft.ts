@@ -1,8 +1,9 @@
 import { createToken, getToken } from "./algorand"
-import { getFromIPFS } from "./ipfs"
+import { getMimeTypeFromIpfs, getMetaFromIpfs } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
 import { conf } from "./config"
+import { Utils } from "@blueprintjs/core"
 
 /*
 
@@ -12,81 +13,141 @@ set forth by the Algorand Foundation and Community
 https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md
 
 */
-const METADATA_FILE = "metadata.json"
-const ARC3_SUFFIX = "@arc3"
 
-export function ipfsURL(cid: string): string {
-    return "ipfs://"+cid
-}
+export const METADATA_FILE = "metadata.json"
+export const ARC3_SUFFIX = "@arc3"
+export const JSON_TYPE = 'application/json'
 
-export function fileURL(cid: string, name: string): string {
-    return conf.ipfsGateway + cid+"/"+name
-}
+export function ipfsURL(cid: string): string { return "ipfs://"+cid }
+export function fileURL(cid: string, name: string): string { return conf.ipfsGateway + cid+"/"+name }
 
-export function resolveURL(url: string): string {
+export function resolveProtocol(url: string): string {
     const chunks = url.split("://")
 
-    // give up
+    // No protocol specified, give up
     if(chunks.length < 2 ) return url
 
-    const proto = chunks[0]
-
-    switch(proto){
-        case "ipfs":
+    //Switch on the protocol
+    switch(chunks[0]){
+        case "ipfs": //Its ipfs, use the configured gateway
             return conf.ipfsGateway + chunks[1]
-        case "https":
+        case "https": //Its already http, just return it
             return url
+        // TODO: Future options may include arweave or algorand
     }
 
     return url
 }
 
-export class NFT {
-    url: string
-    asset_id: number // ASA index
-    metadata: NFTMetadata
+export async function imageIntegrity(file: File): Promise<string> {
+    const buff = await file.arrayBuffer()
+    const bytes = new Uint8Array(buff)
+    const hash = new Uint8Array(sha256.digest(bytes));
+    return "sha256-"+Buffer.from(hash).toString("base64")
+}
 
-    constructor(md: NFTMetadata, url?:string, asset_id?: number) {
-        this.metadata = md
-        this.url = url?url:""
-        this.asset_id = asset_id?asset_id:0 
+export class Token {
+    id:  number         // Asset Idx 
+
+    name: string        
+    unitName: string    
+    url: string         
+
+    metadataHash: string
+
+    total: number       
+    decimals: number    
+
+    creator: string
+
+    manager: string
+    reserve: string
+    clawback: string
+    freeze: string
+
+    defaultFrozen: boolean
+    
+    constructor(t: any) {
+       this.id = t.index
+
+       const p = t.params
+       this.name            = p.name
+       this.unitName        = p.unitName
+       this.url             = p.url
+
+       this.metadataHash    = p.metadataHash
+
+       this.total           = p.total
+       this.decimals        = p.decimals
+
+       this.creator         = p.creator
+
+       this.manager         = p.manager
+       this.reserve         = p.reserve
+       this.clawback        = p.clawback
+       this.freeze          = p.freeze
+
+       this.defaultFrozen   = p.defaultFrozen
     }
 
-    // 
+}
+
+export class NFT {
+    token: Token
+    metadata: NFTMetadata
+
+    urlMimeType: string
+
+    constructor(md: NFTMetadata, token?: Token, urlMimeType?: string) {
+        this.metadata = md
+        this.token = token
+        this.urlMimeType = urlMimeType
+    }
+
     static async create(wallet: Wallet, md: NFTMetadata, cid: string): Promise<NFT> {
         const asset_id = await createToken(wallet, md, ipfsURL(cid), md.decimals)
-        return new NFT(md, fileURL(cid, md.name), asset_id)
+        return new NFT(md,  await getToken(asset_id), JSON_TYPE)
     }
 
     static async fromAssetId(assetId: number): Promise<NFT>{
-        const token = await getToken(assetId)
-        return NFT.fromToken(token)
+        return NFT.fromToken(await getToken(assetId))
     }
 
-    static async fromToken(token: any): Promise<NFT> {
-        const url = token['params']['url']
-        const md = await getFromIPFS(resolveURL(url))
-        return new NFT(md, url, token['index'])
+    static async fromToken(t: any): Promise<NFT> {
+        const token = new Token(t)
+
+        const url = resolveProtocol(token.url)
+
+        //TODO: provide getters for other storage options
+        // arweave? note field?
+
+        const urlMimeType = await getMimeTypeFromIpfs(url)
+
+        switch(urlMimeType){
+            case JSON_TYPE:
+                return new NFT(await getMetaFromIpfs(url), token, urlMimeType)
+        }
+
+        return new NFT(NFTMetadata.fromToken(token), token, urlMimeType)
     }
 
-    static isArc3(token: any): boolean {
-        return token.params.name && token.params.name.endsWith(ARC3_SUFFIX)
-    }
 
     imgURL(): string {
+        // Try to resolve the protocol, if one is set 
+        const url = resolveProtocol(this.metadata.image)
 
-        const url = resolveURL(this.metadata.image)
+        // If the url is different, we resolved it correctly
+        if(url !== this.metadata.image) return url
 
-        if(url !== this.metadata.image){
-            return url
+        // It may be a relative url stored within the same directory as the metadata file
+        // Lop off the METADATA_FILE bit and append image path 
+        if(this.token.url.endsWith(METADATA_FILE)){
+            const dir = this.token.url.substring(0,this.token.url.length-METADATA_FILE.length)
+            return resolveProtocol(dir)+this.metadata.image
         }
 
-        if(this.url.endsWith(METADATA_FILE)){
-            const dir = this.url.substring(0,this.url.length-METADATA_FILE.length)
-            return resolveURL(dir)+this.metadata.image
-        }
-
-        return ""
+        // give up
+        return url 
     }
 }
 
@@ -95,9 +156,7 @@ export type Properties = {
     [key: string]: string | number
 }
 
-
 export class NFTMetadata {
-
     name: string = ""
     description: string = ""
 
@@ -122,7 +181,7 @@ export class NFTMetadata {
     }
 
     toFile(): File {
-        const md_blob = new Blob([JSON.stringify({ ...this }, null, 2)], { type: 'application/json' })
+        const md_blob = new Blob([JSON.stringify({ ...this }, null, 2)], { type: JSON_TYPE })
         return new File([md_blob], METADATA_FILE)
     }
 
@@ -130,11 +189,8 @@ export class NFTMetadata {
         //Max length of asset name is 32 bytes, need 5 for @arc3
         return this.name.substring(0,27) + ARC3_SUFFIX
     }
-}
 
-export async function imageIntegrity(file: File): Promise<string> {
-    const buff = await file.arrayBuffer()
-    const bytes = new Uint8Array(buff)
-    const hash = new Uint8Array(sha256.digest(bytes));
-    return "sha256-"+Buffer.from(hash).toString("base64")
+    static fromToken(t: Token){
+        return new NFTMetadata({ name:t.name, image: t.url, decimals: t.decimals })
+    }
 }

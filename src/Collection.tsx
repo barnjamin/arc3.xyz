@@ -1,9 +1,10 @@
 import * as React from 'react'
-import { Elevation, Card } from "@blueprintjs/core"
+import { Elevation, Card, AnchorButton } from "@blueprintjs/core"
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
 import { conf } from './lib/config'
 import {getCollection} from './lib/algorand' 
+import { validArc3 } from './lib/validator'
 
 export type CollectionProps = {
     sw: SessionWallet
@@ -24,14 +25,16 @@ export function Collection(props: CollectionProps) {
         })
     }, [address])
 
-    let nfts = [<h3 key='looking'>Checking for ARC3 compliant NFTs...</h3>]
+    let nfts = [<h3 key='looking'>Checking for NFTs...</h3>]
     if(loaded ){
         if(collection.length>0){
             nfts = collection.map((nft)=>{
+                const md = nft.metadata
+                const icon = validArc3(nft)?"confirm":"circle"
                 return (
-                <Card className='content-collection-item' key={nft.asset_id} elevation={Elevation.TWO}>
+                <Card className='content-collection-item' key={nft.token.id} elevation={Elevation.TWO}>
                     <img alt='nft content' src={nft.imgURL()} />
-                    <a href={'/nft/'+nft.asset_id}><b>{nft.metadata.name}</b></a>
+                    <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.token.id}><b>{md.name?md.name:nft.token.name}</b></AnchorButton>
                 </Card>
                 )
             })

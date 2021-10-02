@@ -62,7 +62,7 @@ export function Minter(props: MinterProps){
     }
 
     function handleSetNFT(nft: NFT){
-        return history.push("/nft/"+nft.asset_id)
+        return history.push("/nft/"+nft.token.id)
     }
 
     function handleChangeDecimals(v: number){ setDecimals(v) }
