@@ -24,7 +24,7 @@ const validators = {
 
 
 export function validArc3(nft: NFT): boolean {
-    return validateArc3(nft).length==0
+    return validateArc3(nft).length === 0
 }
 
 export function validateArc3(nft: NFT): string[] {

@@ -1,6 +1,6 @@
 import { Wallet } from 'algorand-session-wallet';
 import algosdk, { Transaction } from 'algosdk'
-import { NFT, NFTMetadata, Token } from './nft';
+import { NFT, NFTMetadata } from './nft';
 import {conf} from './config'
 
 const client = new algosdk.Algodv2("", conf.algod, "")

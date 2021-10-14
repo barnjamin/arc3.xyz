@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { Elevation, Card, Icon } from "@blueprintjs/core"
+import { Elevation, Card } from "@blueprintjs/core"
 import { NFT, NFTMetadata} from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
-import { conf, getAddrUrl, getAsaUrl } from './lib/config'
-import { validArc3, validateArc3 } from './lib/validator'
+import { getAddrUrl, getAsaUrl } from './lib/config'
+import { validateArc3 } from './lib/validator'
 
 export type NFTViewerProps = {
     sw: SessionWallet

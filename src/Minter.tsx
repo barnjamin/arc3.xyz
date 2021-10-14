@@ -4,7 +4,6 @@ import { imageIntegrity, NFT, NFTMetadata } from './lib/nft'
 import { SessionWallet } from 'algorand-session-wallet'
 import { putToIPFS } from './lib/ipfs'
 import{ useHistory } from 'react-router-dom'
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript'
 
 export type MinterProps = {
     sw: SessionWallet

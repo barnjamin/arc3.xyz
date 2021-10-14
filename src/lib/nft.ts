@@ -3,7 +3,6 @@ import { getMimeTypeFromIpfs, getMetaFromIpfs } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
 import { conf } from "./config"
-import { Utils } from "@blueprintjs/core"
 
 /*
 
@@ -122,6 +121,7 @@ export class NFT {
         // arweave? note field?
 
         const urlMimeType = await getMimeTypeFromIpfs(url)
+        //const urlMimeType = JSON_TYPE 
 
         switch(urlMimeType){
             case JSON_TYPE:
