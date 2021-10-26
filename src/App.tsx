@@ -53,10 +53,13 @@ function App(props: AppProps) {
         <Navbar.Group align={Alignment.LEFT}>
           <Navbar.Heading>ARC3.xyz</Navbar.Heading>
           <Navbar.Divider />
+          <AnchorButton minimal={true} icon='git-branch' href='https://github.com/barnjamin/arc3.xyz' text='Github' />
           <AnchorButton minimal={true} icon='clean' href='/mint' text='Mint' />
           {collectionLink}
         </Navbar.Group>
         <Navbar.Group  align={Alignment.RIGHT}>
+
+
 
           <AlgorandWalletConnector  
             darkMode={false}
