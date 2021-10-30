@@ -13,14 +13,20 @@ https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md
 
 */
 
+export const ARC3_NAME_SUFFIX = "@arc3"
+export const ARC3_URL_SUFFIX = "#arc3"
 export const METADATA_FILE = "metadata.json"
-export const ARC3_SUFFIX = "@arc3"
 export const JSON_TYPE = 'application/json'
 
+export function asaURL(cid: string): string { return ipfsURL(cid)+ARC3_URL_SUFFIX }
 export function ipfsURL(cid: string): string { return "ipfs://"+cid }
 export function fileURL(cid: string, name: string): string { return conf.ipfsGateway + cid+"/"+name }
 
 export function resolveProtocol(url: string): string {
+
+    if(url.endsWith(ARC3_URL_SUFFIX)) 
+        url = url.slice(0, url.length-ARC3_URL_SUFFIX.length)
+
     const chunks = url.split("://")
 
     // No protocol specified, give up
@@ -69,12 +75,13 @@ export class Token {
     constructor(t: any) {
        this.id = t.index
 
-       const p = t.params
+       const p              = t.params
+
        this.name            = p.name
-       this.unitName        = p.unitName
+       this.unitName        = p['unit-name']
        this.url             = p.url
 
-       this.metadataHash    = p.metadataHash
+       this.metadataHash    = p['metadata-hash']
 
        this.total           = p.total
        this.decimals        = p.decimals
@@ -86,7 +93,7 @@ export class Token {
        this.clawback        = p.clawback
        this.freeze          = p.freeze
 
-       this.defaultFrozen   = p.defaultFrozen
+       this.defaultFrozen   = p['default-frozen']
     }
 
 }
@@ -104,8 +111,8 @@ export class NFT {
     }
 
     static async create(wallet: Wallet, md: NFTMetadata, cid: string): Promise<NFT> {
-        const asset_id = await createToken(wallet, md, ipfsURL(cid), md.decimals)
-        return new NFT(md,  await getToken(asset_id), JSON_TYPE)
+        const asset_id = await createToken(wallet, md, asaURL(cid), md.decimals)
+        return await NFT.fromAssetId(asset_id)
     }
 
     static async fromAssetId(assetId: number): Promise<NFT>{
@@ -121,7 +128,6 @@ export class NFT {
         // arweave? note field?
 
         const urlMimeType = await getMimeTypeFromIpfs(url)
-        //const urlMimeType = JSON_TYPE 
 
         switch(urlMimeType){
             case JSON_TYPE:
@@ -183,11 +189,6 @@ export class NFTMetadata {
     toFile(): File {
         const md_blob = new Blob([JSON.stringify({ ...this }, null, 2)], { type: JSON_TYPE })
         return new File([md_blob], METADATA_FILE)
-    }
-
-    arc3Name(): string {
-        //Max length of asset name is 32 bytes, need 5 for @arc3
-        return this.name.substring(0,27) + ARC3_SUFFIX
     }
 
     static fromToken(t: Token){

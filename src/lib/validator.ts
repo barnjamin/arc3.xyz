@@ -17,9 +17,9 @@ function total(nft: NFT): boolean {
 // TODO: Check that integrity hashes are valid
 
 const validators = {
-    "URL to metadata": mdurl,
+    "URL Points to metadata": mdurl,
     "Metadata Hash matches":mdhash,
-    "Total is 1": total,
+    "Total Supply Is 1": total,
 }
 
 
@@ -27,10 +27,15 @@ export function validArc3(nft: NFT): boolean {
     return validateArc3(nft).length === 0
 }
 
-export function validateArc3(nft: NFT): string[] {
-    const invalid = []
+interface Arc3Test {
+    name: string
+    pass: boolean
+}
+
+export function validateArc3(nft: NFT): Arc3Test[] {
+    const tests = []
     for(const k in validators){
-        if(!validators[k](nft)) invalid.push(k)
+        tests.push({name:k,pass:validators[k](nft)})
     }
-    return invalid
+    return tests 
 }
