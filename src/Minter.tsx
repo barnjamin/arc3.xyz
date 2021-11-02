@@ -91,6 +91,7 @@ export function Minter(props: MinterProps){
         const eprops = extraProps.reduce((all, ep)=>{ return {...all, [ep.name]:ep.value} }, {})
         return new NFTMetadata({
             name:           meta.name,
+            unitName:       meta.unitName,
             description:    meta.description,
             image_mimetype: meta.image_mimetype,
             decimals:       decimals,
@@ -120,6 +121,21 @@ export function Minter(props: MinterProps){
                             type='text'
                             id='name'
                             value={meta.name} />
+                    </FormGroup>
+                    <FormGroup
+                        helperText="The Unit Name for this asset "
+                        label="Unit Name"
+                        labelFor="unitName"
+                        labelInfo="(required)" >
+                        <input
+
+                            name='unitName'
+                            placeholder='Unit Name'
+                            className='details-basic details-title bp3-input bp3-large'
+                            onChange={handleChangeMeta}
+                            type='text'
+                            id='unitName'
+                            value={meta.unitName} />
                     </FormGroup>
                 </div>
 

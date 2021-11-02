@@ -168,6 +168,7 @@ export class NFTMetadata {
 
     image: string = ""
     decimals?: number = 0
+    unitName?: string = ""
     image_integrity?: string = ""
     image_mimetype?: string = ""
 

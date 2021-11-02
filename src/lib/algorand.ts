@@ -10,7 +10,7 @@ export async function createToken(wallet: Wallet, md: NFTMetadata, url: string, 
     const addr      = wallet.getDefaultAccount()
     const suggested = await getSuggested(10)
 
-    const create_txn = getAsaCreateTxn(suggested, addr, md.name, md.toHash(), url, decimals)
+    const create_txn = getAsaCreateTxn(suggested, addr, md.unitName, md.name, md.toHash(), url, decimals)
 
     const [create_txn_s]  = await wallet.signTxn([create_txn])
 
@@ -33,10 +33,11 @@ export function getPayTxn(suggestedParams: any, addr: string): Transaction {
     })
 }
 
-export function getAsaCreateTxn(suggestedParams: any, addr: string, name: string, mdhash: Uint8Array, url: string, decimals:  number): Transaction {
+export function getAsaCreateTxn(suggestedParams: any, addr: string, unitName: string, name: string, mdhash: Uint8Array, url: string, decimals:  number): Transaction {
     return  new Transaction({
         from: addr,
         assetName: name,
+        assetUnitName: unitName,
         assetURL: url,
         assetMetadataHash: mdhash,
         assetManager: addr,
