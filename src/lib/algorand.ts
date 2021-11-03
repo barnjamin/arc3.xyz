@@ -42,8 +42,6 @@ export function getAsaCreateTxn(suggestedParams: any, addr: string, unitName: st
         assetMetadataHash: mdhash,
         assetManager: addr,
         assetReserve: addr,
-        assetClawback: addr,
-        assetFreeze: addr,
         assetTotal: Math.pow(10, decimals),
         assetDecimals: decimals,
         type: 'acfg',
