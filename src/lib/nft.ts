@@ -162,6 +162,18 @@ export type Properties = {
     [key: string]: string | number
 }
 
+export type LocalizationIntegrity = {
+    [key: string]: string 
+}
+
+export type Localization = {
+    uri: string = ""
+    default: string = ""
+    locales: string[] = ""
+    integrity?: LocalizationIntegrity
+}
+
+
 export class NFTMetadata {
     name: string = ""
     description: string = ""
@@ -171,6 +183,19 @@ export class NFTMetadata {
     unitName?: string = ""
     image_integrity?: string = ""
     image_mimetype?: string = ""
+
+    background_color?: string = ""
+    external_url?: string = ""
+    external_url_integrity?: string = ""
+    external_url_mimetype?: string = ""
+
+    animation_url?: string = ""
+    animation_url_integrity?: string = ""
+    animation_url_mimetype?: string = ""
+
+    extra_metadata?: string = ""
+
+    localization?: Localization
 
     properties?: Properties
 
