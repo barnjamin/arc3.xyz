@@ -169,7 +169,7 @@ export type LocalizationIntegrity = {
 export type Localization = {
     uri: string = ""
     default: string = ""
-    locales: string[] = ""
+    locales: string[] = []
     integrity?: LocalizationIntegrity
 }
 
