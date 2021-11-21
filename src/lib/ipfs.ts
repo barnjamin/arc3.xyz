@@ -10,9 +10,9 @@ import {conf} from './config'
 // @ts-ignore
 import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 
-const storage = new Web3Storage({token: conf.storageToken})
 
-export async function putToIPFS(file: File, md: Metadata): Promise<string> {
+export async function putToIPFS(activeConf: number, file: File, md: Metadata): Promise<string> {
+    const storage = new Web3Storage({token: conf[activeConf].storageToken})
     try {
       const imgAdded = await storage.put([file], {wrapWithDirectory: false})
       md.image = ipfsURL(imgAdded)

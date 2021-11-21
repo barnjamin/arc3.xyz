@@ -6,12 +6,11 @@ type Config = {
     blockExplorer: string; // The Block Explorer to allow linking out to
 }
 
-export const conf = require("../config.json") as Config;
+export const conf = require("../config.json") as Config[];
 
-export function getAddrUrl(addr: string): string {
-    return conf.blockExplorer + "address/" + addr
+export function getAddrUrl(idx: number, addr: string): string {
+    return conf[idx].blockExplorer + "address/" + addr
 }
-
-export function getAsaUrl(id: number): string {
-    return conf.blockExplorer + "asset/" + id 
+export function getAsaUrl(idx: number, id: number): string {
+    return conf[idx].blockExplorer + "asset/" + id 
 }

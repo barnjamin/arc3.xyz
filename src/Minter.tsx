@@ -7,6 +7,7 @@ import { putToIPFS } from './lib/ipfs'
 import{ useHistory } from 'react-router-dom'
 
 export type MinterProps = {
+    activeConf: number
     sw: SessionWallet
 }
 
@@ -50,11 +51,11 @@ export function Minter(props: MinterProps){
 
     async function mintNFT() {
         setLoading(true) 
-        const md = captureMetadata()
-        md.image_integrity = await imageIntegrity(fileObj)
+
+        const md = await captureMetadata()
         setMeta(md)
 
-        const cid = await putToIPFS(fileObj, md)
+        const cid = await putToIPFS(props.activeConf, fileObj, md)
         setCID(cid)
 
         setIsMinting(true)
@@ -106,14 +107,16 @@ export function Minter(props: MinterProps){
     }
 
 
-    function captureMetadata(): Metadata {
+    async function captureMetadata(): Promise<Metadata> {
         const eprops = extraProps.reduce((all, ep)=>{ return {...all, [ep.name]:ep.value} }, {})
+        const integ = await imageIntegrity(fileObj)
         return new Metadata({
             name:           token.name,
             unitName:       token.unitName,
             decimals:       token.decimals,
             description:    meta.description,
             image_mimetype: meta.image_mimetype,
+            image_integrity:integ, 
             properties:     { ...eprops, ...meta.properties}
         })
     }
@@ -303,6 +306,7 @@ export function Minter(props: MinterProps){
                 </div>
             </Card>
             <MintDialog 
+                activeConf={props.activeConf}
                 token={token}
                 isMinting={isMinting} 
                 cid={cid} 
@@ -347,6 +351,7 @@ function Uploader(props: UploaderProps) {
 }
 
 type MintDialogProps = {
+    activeConf: number
     isMinting: boolean
     cid: string
     md: Metadata
@@ -367,7 +372,7 @@ function MintDialog(props: MintDialogProps){
     async function mint(){
         try {
             setIsLoading(true)
-            const nft = await NFT.create(props.sw.wallet, props.token, props.md, props.cid)
+            const nft = await NFT.create(props.sw.wallet, props.activeConf, props.token, props.md, props.cid)
             setIsLoading(false)
             props.handleSetNFT(nft)
         } catch (error) {

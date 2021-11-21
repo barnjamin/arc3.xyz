@@ -1,64 +1,68 @@
 import { Wallet } from 'algorand-session-wallet';
-import algosdk, {makeAssetCreateTxnWithSuggestedParamsFromObject} from 'algosdk'
+import algosdk, {Algodv2, makeAssetCreateTxnWithSuggestedParamsFromObject} from 'algosdk'
 import { NFT, Token } from './nft';
 import { Metadata } from './metadata'
 import { conf } from './config'
 
-const client = new algosdk.Algodv2("", conf.algod, "")
+function getClient(activeConf: number): Algodv2 {
+  return new algosdk.Algodv2("", conf[activeConf].algod, "")
+}
 
-export async function createToken(wallet: Wallet, token: Token, md: Metadata, url: string, decimals: number): Promise<number> {
+
+export async function createToken(wallet: Wallet, activeConf: number, token: Token, md: Metadata): Promise<number> {
     const addr      = wallet.getDefaultAccount()
-    const suggested = await getSuggested(10)
+    const suggested = await getSuggested(activeConf, 10)
 
     const create_txn =  makeAssetCreateTxnWithSuggestedParamsFromObject({
         from: addr,
         assetName: md.name,
         unitName: md.unitName,
-        assetURL: url,
+        assetURL: token.url,
         assetMetadataHash: md.toHash(),
         manager: token.manager,
         reserve: token.reserve,
         clawback: token.clawback,
         freeze: token.freeze,
-        total: Math.pow(10, decimals),
-        decimals: decimals,
+        total: Math.pow(10, token.decimals),
+        decimals: token.decimals,
         defaultFrozen: token.defaultFrozen,
         suggestedParams: suggested
     })
 
     const [create_txn_s]  = await wallet.signTxn([create_txn])
 
-    const result = await sendWait([create_txn_s])
+    const result = await sendWait(activeConf, [create_txn_s])
     return result['asset-index']
 }
 
-export async function getSuggested(rounds: number) {
-    const txParams = await client.getTransactionParams().do();
+export async function getSuggested(activeConf: number, rounds: number) {
+    const txParams = await getClient(activeConf).getTransactionParams().do();
     return { ...txParams, lastRound: txParams['firstRound'] + rounds }
 }
 
-export async function getToken(assetId: number): Promise<any> {
-  return await client.getAssetByID(assetId).do()
+export async function getToken(activeConf: number, assetId: number): Promise<any> {
+  return await getClient(activeConf).getAssetByID(assetId).do()
 }
 
-export async function getCollection(address: string): Promise<any[]> {
-  const results = await client.accountInformation(address).do()
+export async function getCollection(activeConf: number, address: string): Promise<any[]> {
+  const results = await getClient(activeConf).accountInformation(address).do()
 
   const plist = []
   for(const a in results['assets']){
     if(results['assets'][a]['amount']>0)
-      plist.push(getToken(results['assets'][a]['asset-id']))
+      plist.push(getToken(activeConf, results['assets'][a]['asset-id']))
   }
 
   const assets = await Promise.all(plist)
-  const collectionRequests = assets.map((a)=>{ return NFT.fromToken(a) })
+  const collectionRequests = assets.map((a)=>{ return NFT.fromToken(activeConf, a) })
   return Promise.all(collectionRequests)
 }
 
-export async function sendWait(signed: any[]): Promise<any> {
+export async function sendWait(activeConf: number, signed: any[]): Promise<any> {
+    const client = getClient(activeConf)
     try {
         const {txId} = await client.sendRawTransaction(signed.map((t)=>{return t.blob})).do()
-        const result = await waitForConfirmation(txId, 3)
+        const result = await waitForConfirmation(client, txId, 3)
         return result 
     } catch (error) { 
         console.error(error)
@@ -67,7 +71,7 @@ export async function sendWait(signed: any[]): Promise<any> {
     return undefined 
 }
 
-async function waitForConfirmation(txId, timeout) {
+async function waitForConfirmation(client, txId, timeout) {
     if (client == null || txId == null || timeout < 0) {
       throw new Error('Bad arguments.');
     }

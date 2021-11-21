@@ -7,6 +7,7 @@ import {getCollection} from './lib/algorand'
 import { validArc3 } from './lib/validator'
 
 export type CollectionProps = {
+    activeConf: number
     sw: SessionWallet
 }
 
@@ -18,12 +19,11 @@ export function Collection(props: CollectionProps) {
 
     React.useEffect(()=>{
         setLoaded(false)
-        getCollection(address).then((collection)=>{
+        getCollection(props.activeConf, address).then((collection)=>{
             setCollection(collection)
-            console.log(collection)
             setLoaded(true)
         })
-    }, [address])
+    }, [address, props.activeConf])
 
     let nfts = [<h3 key='looking'>Checking for NFTs...</h3>]
     if(loaded ){
@@ -33,13 +33,13 @@ export function Collection(props: CollectionProps) {
                 const icon = validArc3(nft)?"confirm":"circle"
                 return (
                 <Card className='content-collection-item' key={nft.token.id} elevation={Elevation.TWO}>
-                    <img alt='nft content' src={nft.imgURL()} />
+                    <img alt='nft content' src={nft.imgURL(props.activeConf)} />
                     <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.token.id}><b>{md.name?md.name:nft.token.name}</b></AnchorButton>
                 </Card>
                 )
             })
         }else{
-            nfts = [<h3 key='none'>You dont have any ARC3 compliant NFTs on {conf.network}, <a href='/mint'>Mint one?</a></h3>]
+            nfts = [<h3 key='none'>You dont have any ARC3 compliant NFTs on {conf[props.activeConf].network}, <a href='/mint'>Mint one?</a></h3>]
         }
     }
     return (

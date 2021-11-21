@@ -21,9 +21,9 @@ export const JSON_TYPE = 'application/json'
 
 export function asaURL(cid: string): string { return ipfsURL(cid)+ARC3_URL_SUFFIX }
 export function ipfsURL(cid: string): string { return "ipfs://"+cid }
-export function fileURL(cid: string, name: string): string { return conf.ipfsGateway + cid+"/"+name }
+export function fileURL(activeConf: number, cid: string, name: string): string { return conf[activeConf].ipfsGateway + cid+"/"+name }
 
-export function resolveProtocol(url: string): string {
+export function resolveProtocol(activeConf: number, url: string): string {
 
     if(url.endsWith(ARC3_URL_SUFFIX)) 
         url = url.slice(0, url.length-ARC3_URL_SUFFIX.length)
@@ -36,7 +36,7 @@ export function resolveProtocol(url: string): string {
     //Switch on the protocol
     switch(chunks[0]){
         case "ipfs": //Its ipfs, use the configured gateway
-            return conf.ipfsGateway + chunks[1]
+            return conf[activeConf].ipfsGateway + chunks[1]
         case "https": //Its already http, just return it
             return url
         // TODO: Future options may include arweave or algorand
@@ -93,8 +93,10 @@ export class Token {
        this.defaultFrozen   = t.defaultFrozen || false
     }
 
-    static fromParams(p: any ): Token {
+    static fromParams(t: any ): Token {
+        const p  = t.params
         return {
+            id              : t.index,
             name            : p.name || "",
             unitName        : p['unit-name'] || "",
             url             : p.url || "",
@@ -125,19 +127,19 @@ export class NFT {
         this.urlMimeType = urlMimeType
     }
 
-    static async create(wallet: Wallet, token: Token, md: Metadata, cid: string): Promise<NFT> {
-        const asset_id = await createToken(wallet, token, md, asaURL(cid), md.decimals)
-        return await NFT.fromAssetId(asset_id)
+    static async create(wallet: Wallet, activeConf:number, token: Token, md: Metadata, cid: string): Promise<NFT> {
+        token.url = asaURL(cid)
+        const asset_id = await createToken(wallet, activeConf, token, md)
+        return await NFT.fromAssetId(activeConf, asset_id)
     }
 
-    static async fromAssetId(assetId: number): Promise<NFT>{
-        return NFT.fromToken(await getToken(assetId))
+    static async fromAssetId(activeConf: number, assetId: number): Promise<NFT>{
+        return NFT.fromToken(activeConf, await getToken(activeConf, assetId))
     }
 
-    static async fromToken(t: any): Promise<NFT> {
-        const token = new Token(t)
-
-        const url = resolveProtocol(token.url)
+    static async fromToken(activeConf: number, t: any): Promise<NFT> {
+        const token = Token.fromParams(t)
+        const url = resolveProtocol(activeConf, token.url)
 
         //TODO: provide getters for other storage options
         // arweave? note field?
@@ -153,9 +155,9 @@ export class NFT {
     }
 
 
-    imgURL(): string {
+    imgURL(activeConf: number): string {
         // Try to resolve the protocol, if one is set 
-        const url = resolveProtocol(this.metadata.image)
+        const url = resolveProtocol(activeConf, this.metadata.image)
 
         // If the url is different, we resolved it correctly
         if(url !== this.metadata.image) return url
@@ -164,7 +166,7 @@ export class NFT {
         // Lop off the METADATA_FILE bit and append image path 
         if(this.token.url.endsWith(METADATA_FILE)){
             const dir = this.token.url.substring(0,this.token.url.length-METADATA_FILE.length)
-            return resolveProtocol(dir)+this.metadata.image
+            return resolveProtocol(activeConf, dir)+this.metadata.image
         }
 
         // give up

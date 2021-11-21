@@ -6,6 +6,7 @@ import AlgorandWalletConnector from './AlgorandWalletConnector'
 import {NFTViewer} from './NFTViewer'
 import {Collection} from './Collection'
 import { conf } from './lib/config';
+import {NetworkSelector} from './NetworkSelector'
 
 import {
   BrowserRouter as Router,
@@ -21,7 +22,9 @@ type AppProps = {
 
 function App(props: AppProps) {
 
-  const sw = new SessionWallet(conf.network)
+  const [activeConf, setActiveConf] = React.useState(0)
+
+  const sw = new SessionWallet(conf[activeConf].network)
 
   const [sessionWallet, setSessionWallet] =  React.useState(sw)
   const [accts, setAccounts] = React.useState(sw.accountList())
@@ -32,6 +35,8 @@ function App(props: AppProps) {
     setAccounts(sw.accountList())
     setConnected(sw.connected())
   }
+
+  function selectNetwork(idx: number){ setActiveConf(idx) }
 
   let collectionLink = <div></div>
   if(connected){
@@ -49,8 +54,7 @@ function App(props: AppProps) {
           {collectionLink}
         </Navbar.Group>
         <Navbar.Group  align={Alignment.RIGHT}>
-
-
+          <NetworkSelector selectNetwork={selectNetwork} />
 
           <AlgorandWalletConnector  
             darkMode={false}
@@ -63,10 +67,10 @@ function App(props: AppProps) {
         </Navbar.Group>
         </Navbar>
         <Switch>
-          <Route exact path="/" children={<Minter  sw={sessionWallet}></Minter>} />
-          <Route exact path="/mint" children={ <Minter  sw={sessionWallet}></Minter> }/>
-          <Route path="/nft/:assetId" children={ <NFTViewer  sw={sessionWallet} /> }/>
-          <Route path="/collection/:address" children={ <Collection  sw={sessionWallet} /> }/>
+          <Route exact path="/" children={<Minter  activeConf={activeConf} sw={sessionWallet}></Minter>} />
+          <Route exact path="/mint" children={ <Minter  activeConf={activeConf} sw={sessionWallet}></Minter> }/>
+          <Route path="/nft/:assetId" children={ <NFTViewer activeConf={activeConf}  sw={sessionWallet} /> }/>
+          <Route path="/collection/:address" children={ <Collection  activeConf={activeConf} sw={sessionWallet} /> }/>
         </Switch>
       </div>
     </Router>
