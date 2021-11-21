@@ -9,6 +9,10 @@ function getClient(activeConf: number): Algodv2 {
 }
 
 
+function setOrUndef(addr: string): string | undefined {
+  return addr===""?undefined:addr
+}
+
 export async function createToken(wallet: Wallet, activeConf: number, token: Token, md: Metadata): Promise<number> {
     const addr      = wallet.getDefaultAccount()
     const suggested = await getSuggested(activeConf, 10)
@@ -19,10 +23,10 @@ export async function createToken(wallet: Wallet, activeConf: number, token: Tok
         unitName: md.unitName,
         assetURL: token.url,
         assetMetadataHash: md.toHash(),
-        manager: token.manager,
-        reserve: token.reserve,
-        clawback: token.clawback,
-        freeze: token.freeze,
+        manager: setOrUndef(token.manager),
+        reserve: setOrUndef(token.reserve),
+        clawback: setOrUndef(token.clawback),
+        freeze: setOrUndef(token.freeze),
         total: Math.pow(10, token.decimals),
         decimals: token.decimals,
         defaultFrozen: token.defaultFrozen,

@@ -43,12 +43,12 @@ export function NFTViewer(props: NFTViewerProps) {
         img = <img alt='nft' className='bp3-elevation-3' src={nft.imgURL(props.activeConf)}/>
 
         const mdProps = nft.metadata && nft.metadata["_raw"] !== undefined?(
-            <li key="_raw" >
-                <SyntaxHighlighter language='json' style={docco} wrapLongLines={true}>
+            <div className='raw-metadata'>
+                <SyntaxHighlighter language='json' style={docco} wrapLongLines={true}  >
                     {nft.metadata["_raw"]}
                 </SyntaxHighlighter>
-            </li>
-        ):[<li key={'none'} >No metadata</li>]
+            </div>
+        ):<p>No metadata</p>
 
         const arc3Invalids = validateArc3(nft).map(test=>{
             if(test.pass)
@@ -58,30 +58,40 @@ export function NFTViewer(props: NFTViewerProps) {
         })
 
         meta = (
-            <ul>
-                <h5>Token Details</h5>
-
-                <li><b>ASA id: </b><a rel="noreferrer" target="_blank" href={getAsaUrl(props.activeConf, nft.token.id)} >{nft.token.id}</a></li>
-                <li><b>Name:    </b>{nft.token.name}</li>
-                <li><b>Unit Name: </b>{nft.token.unitName}</li>
-                <li><b>Total:   </b>{nft.token.total}</li>
-                <li><b>URL:     </b><a rel="noreferrer" target="_blank" href={resolveProtocol(props.activeConf, nft.token.url)} >{nft.token.url}</a></li>
-                <li><b>Creator: </b><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.creator)}  >{nft.token.creator}</a></li>
-                <li><b>Manager: </b><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.manager)}  >{nft.token.manager}</a></li>
-                <li><b>Reserve: </b><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.reserve)}  >{nft.token.reserve}</a></li>
-                <li><b>Freeze:  </b><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.freeze) }  >{nft.token.freeze }</a></li>
-                <li><b>Clawback:</b><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.clawback)} >{nft.token.clawback}</a></li>
-                <li><b>Metadata Hash: </b>{nft.token.metadataHash}</li>
-
-                <hr/>
-                <h5>Metadata</h5>
+        <div>
+            <h5>Token Parameters</h5>
+            <div className='content'>
+                <table>
+                    <tbody>
+                        <tr><td><b>ASA id: </b></td><td><a rel="noreferrer" target="_blank" href={getAsaUrl(props.activeConf, nft.token.id)} >{nft.token.id}</a></td></tr>
+                        <tr><td><b>Name:</b></td><td>{nft.token.name}</td></tr>
+                        <tr><td><b>Unit Name:</b></td><td>{nft.token.unitName}</td></tr>
+                        <tr><td><b>Total:</b></td><td>{nft.token.total}</td></tr>
+                        <tr><td><b>Decimals:</b></td><td>{nft.token.decimals}</td></tr>
+                        <tr><td><b>URL:     </b></td><td><a rel="noreferrer" target="_blank" href={resolveProtocol(props.activeConf, nft.token.url)} >{nft.token.url}</a></td></tr>
+                        <tr><td><b>Creator: </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.creator)}  >{nft.token.creator}</a></td></tr>
+                        <tr><td><b>Manager: </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.manager)}  >{nft.token.manager}</a></td></tr>
+                        <tr><td><b>Reserve: </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.reserve)}  >{nft.token.reserve}</a></td></tr>
+                        <tr><td><b>Freeze:  </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.freeze) }  >{nft.token.freeze }</a></td></tr>
+                        <tr><td><b>Clawback:</b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.clawback)} >{nft.token.clawback}</a></td></tr>
+                        <tr><td><b>Metadata Hash: </b></td><td>{nft.token.metadataHash}</td></tr>
+                        <tr><td><b>Default Frozen: </b></td><td>{nft.token.defaultFrozen?"Yes":"No"}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr/>
+            <h5>Metadata</h5>
+            <div className='content'>
                 {mdProps}
-                <hr />
-                <h5>ARC3 tests:</h5>
+            </div>
+            <hr/> 
+            <h5>ARC3 tests:</h5>
+            <div className='content'>
                 <ul>
                     {arc3Invalids}
                 </ul>
-            </ul>
+            </div>
+        </div>
         )
     }
 
@@ -92,7 +102,7 @@ export function NFTViewer(props: NFTViewerProps) {
                     <div className='content content-piece'>
                         {img}       
                     </div>
-                    <div className='content content-info'>
+                    <div className='content-info'>
                         {meta}
                     </div>
                 </div>

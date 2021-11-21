@@ -3,7 +3,7 @@
 	flex-flow: row wrap;
 	justify-content: space-around;
 	align-items: center;
-	padding: 20px;
+	padding:10px;
 }
 
 .content {
@@ -81,6 +81,10 @@
 
 .extra-param-list .bp3-form-group {
 	align-items: center;
+}
+
+.raw-metadata {
+	max-width: 100%
 }
 
 .container-mint {
