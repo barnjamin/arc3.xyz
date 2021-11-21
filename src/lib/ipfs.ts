@@ -1,4 +1,5 @@
-import { ipfsURL, NFTMetadata } from './nft'
+import { ipfsURL } from './nft'
+import {Metadata} from './metadata'
 import {conf} from './config'
 
 /*
@@ -11,7 +12,7 @@ import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 
 const storage = new Web3Storage({token: conf.storageToken})
 
-export async function putToIPFS(file: File, md: NFTMetadata): Promise<string> {
+export async function putToIPFS(file: File, md: Metadata): Promise<string> {
     try {
       const imgAdded = await storage.put([file], {wrapWithDirectory: false})
       md.image = ipfsURL(imgAdded)
@@ -30,11 +31,13 @@ export async function getMimeTypeFromIpfs(url: string): Promise<string> {
 }
 
 
-export async function getMetaFromIpfs(url: string): Promise<NFTMetadata> {
+export async function getMetaFromIpfs(url: string): Promise<Metadata> {
     const req = new Request(url)
     const resp = await fetch(req)
     const body = await resp.blob()
-    return new NFTMetadata(JSON.parse(await body.text())) 
+    const text = await body.text()
+    const parsed = JSON.parse(text)
+    return new Metadata({"_raw":text, ...parsed}) 
 }
 
 

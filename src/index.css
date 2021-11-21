@@ -69,6 +69,20 @@
 .extra-prop-dropdown {
 	flex-direction: column;
 }
+
+.extra-param-dropdown {
+	flex-direction: column;
+}
+
+.extra-param-list {
+	flex-flow: column;
+	align-items: flex-end;
+}
+
+.extra-param-list .bp3-form-group {
+	align-items: center;
+}
+
 .container-mint {
 	justify-content: flex-end;
 }

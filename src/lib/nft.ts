@@ -3,6 +3,7 @@ import { getMimeTypeFromIpfs, getMetaFromIpfs } from "./ipfs"
 import { sha256 } from 'js-sha256'
 import { Wallet } from "algorand-session-wallet"
 import { conf } from "./config"
+import {Metadata} from './metadata'
 
 /*
 
@@ -52,7 +53,7 @@ export async function imageIntegrity(file: File): Promise<string> {
 }
 
 export class Token {
-    id:  number         // Asset Idx 
+    id:  number 
 
     name: string        
     unitName: string    
@@ -73,45 +74,59 @@ export class Token {
     defaultFrozen: boolean
     
     constructor(t: any) {
-       this.id = t.index
+       this.name            = t.name || ""
+       this.unitName        = t.unitName || ""
+       this.url             = t.url || ""
 
-       const p              = t.params
+       this.metadataHash    = t.metadataHash || ""
 
-       this.name            = p.name
-       this.unitName        = p['unit-name']
-       this.url             = p.url
+       this.total           = t.total || 0
+       this.decimals        = t.decimals || 0
 
-       this.metadataHash    = p['metadata-hash']
+       this.creator         = t.creator || ""
 
-       this.total           = p.total
-       this.decimals        = p.decimals
+       this.manager         = t.manager || ""
+       this.reserve         = t.reserve || ""
+       this.clawback        = t.clawback || ""
+       this.freeze          = t.freeze || ""
 
-       this.creator         = p.creator
+       this.defaultFrozen   = t.defaultFrozen || false
+    }
 
-       this.manager         = p.manager
-       this.reserve         = p.reserve
-       this.clawback        = p.clawback
-       this.freeze          = p.freeze
+    static fromParams(p: any ): Token {
+        return {
+            name            : p.name || "",
+            unitName        : p['unit-name'] || "",
+            url             : p.url || "",
+            metadataHash    : p['metadata-hash'] || "",
+            total           : p.total || 0,
+            decimals        : p.decimals || 0,
+            creator         : p.creator || "",
+            manager         : p.manager || "",
+            reserve         : p.reserve || "",
+            clawback        : p.clawback || "",
+            freeze          : p.freeze || "",
+            defaultFrozen   : p['default-frozen'] || false,
+        } as Token
 
-       this.defaultFrozen   = p['default-frozen']
     }
 
 }
 
 export class NFT {
     token: Token
-    metadata: NFTMetadata
+    metadata: Metadata
 
     urlMimeType: string
 
-    constructor(md: NFTMetadata, token?: Token, urlMimeType?: string) {
+    constructor(md: Metadata, token?: Token, urlMimeType?: string) {
         this.metadata = md
         this.token = token
         this.urlMimeType = urlMimeType
     }
 
-    static async create(wallet: Wallet, md: NFTMetadata, cid: string): Promise<NFT> {
-        const asset_id = await createToken(wallet, md, asaURL(cid), md.decimals)
+    static async create(wallet: Wallet, token: Token, md: Metadata, cid: string): Promise<NFT> {
+        const asset_id = await createToken(wallet, token, md, asaURL(cid), md.decimals)
         return await NFT.fromAssetId(asset_id)
     }
 
@@ -134,7 +149,7 @@ export class NFT {
                 return new NFT(await getMetaFromIpfs(url), token, urlMimeType)
         }
 
-        return new NFT(NFTMetadata.fromToken(token), token, urlMimeType)
+        return new NFT(Metadata.fromToken(token), token, urlMimeType)
     }
 
 
@@ -154,70 +169,5 @@ export class NFT {
 
         // give up
         return url 
-    }
-}
-
-
-export type Properties = {
-    [key: string]: string | number
-}
-
-export type LocalizationIntegrity = {
-    [key: string]: string 
-}
-
-export type Localization = {
-    uri: string = ""
-    default: string = ""
-    locales: string[] = []
-    integrity?: LocalizationIntegrity
-}
-
-
-export class NFTMetadata {
-    name: string = ""
-    description: string = ""
-
-    image: string = ""
-    decimals?: number = 0
-    unitName?: string = ""
-    image_integrity?: string = ""
-    image_mimetype?: string = ""
-
-    background_color?: string = ""
-    external_url?: string = ""
-    external_url_integrity?: string = ""
-    external_url_mimetype?: string = ""
-
-    animation_url?: string = ""
-    animation_url_integrity?: string = ""
-    animation_url_mimetype?: string = ""
-
-    extra_metadata?: string = ""
-
-    localization?: Localization
-
-    properties?: Properties
-
-    constructor(args: any = {}) { Object.assign(this, args) }
-
-    toHash(): Uint8Array {
-        if(this.hasOwnProperty("extra_metadata")){
-            //TODO
-            //am = SHA-512/256("arc0003/am" || SHA-512/256("arc0003/amj" || content of JSON metadata file) || e)
-        }
-
-        const hash = sha256.create();
-        hash.update(JSON.stringify(this));
-        return new Uint8Array(hash.digest())
-    }
-
-    toFile(): File {
-        const md_blob = new Blob([JSON.stringify({ ...this }, null, 2)], { type: JSON_TYPE })
-        return new File([md_blob], METADATA_FILE)
-    }
-
-    static fromToken(t: Token){
-        return new NFTMetadata({ name:t.name, image: t.url, decimals: t.decimals })
     }
 }
