@@ -5,7 +5,7 @@ import {Minter} from './Minter';
 import AlgorandWalletConnector from './AlgorandWalletConnector'
 import {NFTViewer} from './NFTViewer'
 import {Collection} from './Collection'
-import { conf } from './lib/config';
+import { conf, sessionGetActiveConf, sessionSetActiveConf } from './lib/config';
 import {NetworkSelector} from './NetworkSelector'
 
 import {
@@ -22,9 +22,10 @@ type AppProps = {
 
 function App(props: AppProps) {
 
-  const [activeConf, setActiveConf] = React.useState(0)
+  const [activeConf, setActiveConf] = React.useState(sessionGetActiveConf())
 
   const sw = new SessionWallet(conf[activeConf].network)
+
 
   const [sessionWallet, setSessionWallet] =  React.useState(sw)
   const [accts, setAccounts] = React.useState(sw.accountList())
@@ -36,7 +37,10 @@ function App(props: AppProps) {
     setConnected(sw.connected())
   }
 
-  function selectNetwork(idx: number){ setActiveConf(idx) }
+  function selectNetwork(idx: number){ 
+    sessionSetActiveConf(idx)
+    setActiveConf(idx) 
+  }
 
   let collectionLink = <div></div>
   if(connected){
@@ -54,7 +58,7 @@ function App(props: AppProps) {
           {collectionLink}
         </Navbar.Group>
         <Navbar.Group  align={Alignment.RIGHT}>
-          <NetworkSelector selectNetwork={selectNetwork} />
+          <NetworkSelector activeConf={activeConf} selectNetwork={selectNetwork} />
 
           <AlgorandWalletConnector  
             darkMode={false}

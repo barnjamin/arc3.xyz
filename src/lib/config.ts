@@ -14,3 +14,14 @@ export function getAddrUrl(idx: number, addr: string): string {
 export function getAsaUrl(idx: number, id: number): string {
     return conf[idx].blockExplorer + "asset/" + id 
 }
+
+const activeConfKey = "active-conf"
+export function sessionGetActiveConf(): number {
+    const ac = sessionStorage.getItem(activeConfKey)
+    if(ac === undefined || ac === null) return 0
+    return parseInt(ac)
+}
+
+export function sessionSetActiveConf(ac: number)  {
+    sessionStorage.setItem(activeConfKey, ac.toString())
+}

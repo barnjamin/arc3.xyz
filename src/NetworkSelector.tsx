@@ -3,6 +3,7 @@ import React from 'react'
 import {conf} from './lib/config'
 
 interface NetworkSelectorProps {
+    activeConf: number
     selectNetwork(network: number)
 }
 
@@ -21,7 +22,7 @@ export function NetworkSelector(props: NetworkSelectorProps){
             <HTMLSelect 
                 onChange={handleSelectNetwork} 
                 minimal={true} 
-                defaultValue={0} >
+                defaultValue={props.activeConf} >
                 {network_list}
             </HTMLSelect>
         </div>
