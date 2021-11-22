@@ -19,6 +19,8 @@ Also it looks meh and needs a logo
 
 PRs very welcome
 
+I have my _personal_ web3.storage token set in the config, this is not great practice but I'm trusting you not to spam me. Also know that I can unpin/delete these files from IPFS at any time, so you'll have to trust me as well.
+
 
 Devs
 -----
@@ -31,6 +33,8 @@ cd arc3.xyz
 yarn install
 ```
 Set your key in the `storageToken` field in `src/config.json` and update whatever other fields there you'd like 
+
+
 
 ```
 yarn start
