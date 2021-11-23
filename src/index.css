@@ -40,6 +40,20 @@
 	margin:2px;
 }
 
+.mint-card {
+	min-width: 50%;
+}
+
+.mint-card .bp3-input-group {
+	margin:5px;
+}
+.mint-card .bp3-form-group {
+	width: 90%;
+}
+.mint-card textarea {
+	width: 100%
+}
+
 .content-collection {
 	flex-direction:row;
 	flex-wrap:wrap	;
@@ -54,15 +68,24 @@
 
 .extra-prop-list {
 	list-style: none;
+	width:100%;
 }
 
 .extra-prop-item {
+	width: 100%;
+	overflow: auto;
 	padding:0.1em;
 }
 
 .extra-prop-item input {
-	margin: 0.1em;
+	max-width: 40%;
+	margin: 2%;
+	float:left;
 }
+.extra-prop-collapse p {
+	text-align: center;
+}
+
 .extra-prop-add {
 	justify-self: right;
 }
@@ -81,6 +104,11 @@
 
 .extra-param-list .bp3-form-group {
 	align-items: center;
+}
+
+.extra-prop-collapse {
+	margin:10px;
+	width: 100%;
 }
 
 .raw-metadata {

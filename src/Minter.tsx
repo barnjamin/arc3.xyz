@@ -123,7 +123,7 @@ export function Minter(props: MinterProps){
 
     return (
         <div className='container'>
-            <Card elevation={Elevation.TWO} >
+            <Card elevation={Elevation.TWO} className='mint-card' >
                 <Uploader
                     imgSrc={imgSrc}
                     setFile={setFile}
@@ -144,8 +144,6 @@ export function Minter(props: MinterProps){
                             id='name'
                             value={token.name} />
                     </FormGroup>
-                </div>
-                <div className='container'>
                     <FormGroup
                         helperText="The Unit Name for this asset "
                         label="Unit Name"
@@ -185,6 +183,7 @@ export function Minter(props: MinterProps){
                         onClick={handleShowExtraParams}  
                         minimal={true} 
                         outlined={true} 
+                        large={true}
                         text={extraParamsVisible?"Hide extra parameters":"Show extra parameters"} 
                     />
                     <Collapse isOpen={extraParamsVisible}>
@@ -256,9 +255,11 @@ export function Minter(props: MinterProps){
                         onClick={handleShowExtraProps}  
                         minimal={true} 
                         outlined={true} 
+                        large={true}
                         text={extraPropsVisible?"Hide extra props":"Show extra props"} 
                     />
-                    <Collapse isOpen={extraPropsVisible}>
+                    <Collapse isOpen={extraPropsVisible} className='extra-prop-collapse'>
+                        <p>Add string keys and values</p>
                         <ul className='extra-prop-list'>
                         { 
                             extraProps.map((props, idx)=>{ 
@@ -279,14 +280,14 @@ export function Minter(props: MinterProps){
                                             value={props.value} 
                                             onChange={handleExtraPropUpdate} 
                                             className='details-basic details-artist bp3-InputGroup bp3-large' />
-                                        <Button minimal={true} icon='minus' onClick={()=>{ handleExtraPropRemove(idx) }}  />
+                                        <Button minimal={true} intent='danger' icon='cross' onClick={()=>{ handleExtraPropRemove(idx) }}  />
                                     </div>
                                 </li>
                                 )
                             })
                         }
                         </ul>
-                        <Button fill={true} icon='plus' minimal={true} onClick={handleAddExtraProp} className='extra-prop-add' />
+                        <Button fill={true} icon='plus' intent='primary' minimal={true} onClick={handleAddExtraProp} className='extra-prop-add' />
                     </Collapse>
                 </div>
 
