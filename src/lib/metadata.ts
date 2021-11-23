@@ -66,6 +66,10 @@ export class Metadata {
         return new Uint8Array(hash.digest())
     }
 
+    valid(): boolean {
+        return this.name !== "" && this.image !== ""
+    }
+
     toFile(): File {
         const md_blob = new Blob([this.toString()], { type: JSON_TYPE })
         return new File([md_blob], METADATA_FILE)

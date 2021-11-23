@@ -28,13 +28,14 @@ export function Collection(props: CollectionProps) {
     let nfts = [<h3 key='looking'>Checking for NFTs...</h3>]
     if(loaded ){
         if(collection.length>0){
-            nfts = collection.map((nft)=>{
-                const md = nft.metadata
+            nfts = collection.filter((nft)=>{
+                return nft.id() !== 0
+            }).map((nft)=>{
                 const icon = validArc3(nft)?"confirm":"circle"
                 return (
-                <Card className='content-collection-item' key={nft.token.id} elevation={Elevation.TWO}>
+                <Card className='content-collection-item' key={nft.id()} elevation={Elevation.TWO}>
                     <img alt='nft content' src={nft.imgURL(props.activeConf)} />
-                    <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.token.id}><b>{md.name?md.name:nft.token.name}</b></AnchorButton>
+                    <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.id()}><b>{nft.name()}</b></AnchorButton>
                 </Card>
                 )
             })

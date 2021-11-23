@@ -74,6 +74,7 @@ export class Token {
     defaultFrozen: boolean
     
     constructor(t: any) {
+       this.id              = t.id || 0
        this.name            = t.name || ""
        this.unitName        = t.unitName || ""
        this.url             = t.url || ""
@@ -95,7 +96,7 @@ export class Token {
 
     static fromParams(t: any ): Token {
         const p  = t.params
-        return {
+        return new Token({
             id              : t.index,
             name            : p.name || "",
             unitName        : p['unit-name'] || "",
@@ -109,15 +110,19 @@ export class Token {
             clawback        : p.clawback || "",
             freeze          : p.freeze || "",
             defaultFrozen   : p['default-frozen'] || false,
-        } as Token
+        }) as Token
 
+    }
+
+    valid(): boolean {
+        return this.id>0 && this.total>0 && this.url !== ""
     }
 
 }
 
 export class NFT {
-    token: Token
-    metadata: Metadata
+    token: Token = new Token({})
+    metadata: Metadata = new Metadata()
 
     urlMimeType: string
 
@@ -144,18 +149,42 @@ export class NFT {
         //TODO: provide getters for other storage options
         // arweave? note field?
 
-        const urlMimeType = await getMimeTypeFromIpfs(url)
+        try {
+            const urlMimeType = await getMimeTypeFromIpfs(url)
 
-        switch(urlMimeType){
-            case JSON_TYPE:
-                return new NFT(await getMetaFromIpfs(url), token, urlMimeType)
+            switch(urlMimeType){
+                case JSON_TYPE:
+                    return new NFT(await getMetaFromIpfs(url), token, urlMimeType)
+            }
+
+            return new NFT(Metadata.fromToken(token), token, urlMimeType)
+        } catch (error) {
+            return new NFT(new Metadata(), token)    
         }
-
-        return new NFT(Metadata.fromToken(token), token, urlMimeType)
     }
 
+    valid(): boolean {
+       return this.token.valid() && this.metadata.valid()
+    }
+
+    name(): string {
+        if(this.metadata.valid()){
+            return this.metadata.name
+        }
+        if(this.token.valid()){
+            return this.token.name
+        }
+        return ""
+    }
+
+    id(): number {
+        return this.token.valid()? this.token.id : 0
+    }
 
     imgURL(activeConf: number): string {
+        if(!this.valid()) return "https://dummyimage.com/640x360/fff/aaa"
+
+
         // Try to resolve the protocol, if one is set 
         const url = resolveProtocol(activeConf, this.metadata.image)
 
