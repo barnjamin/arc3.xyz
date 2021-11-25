@@ -67,7 +67,7 @@ export class Metadata {
     }
 
     valid(): boolean {
-        return this.name !== "" && this.image !== ""
+        return this.image !== ""
     }
 
     toFile(): File {
