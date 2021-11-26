@@ -52,17 +52,17 @@ export class Metadata {
 
     constructor(args: any = {}) { Object.assign(this, args) }
 
-    toHash(marshalled: Boolean = false): Uint8Array {
+    toHash(fmt: Boolean = false): Uint8Array {
         if(this.hasOwnProperty("extra_metadata")){
             //TODO
             //am = SHA-512/256("arc0003/am" || SHA-512/256("arc0003/amj" || content of JSON metadata file) || e)
         }
 
         if(this._raw === undefined) 
-            this._raw = this.toString()
+            this._raw = this.toString(false)
 
         const hash = sha256.create();
-        hash.update(this.toString(marshalled));
+        fmt ? hash.update(this.toString(false)):hash.update(this._raw);
         return new Uint8Array(hash.digest())
     }
 
@@ -76,10 +76,10 @@ export class Metadata {
     }
 
     toString(fmt: Boolean = false): string {
-        return JSON.stringify({...this}, omitRawAndEmpty, fmt?2:0)
+        return JSON.stringify(JSON.parse(this._raw) , omitRawAndEmpty, fmt?2:0)
     }
 
     static fromToken(t: Token){
-        return new Metadata({ name:t.name, image: t.url, decimals: t.decimals })
+        return new Metadata({name:t.name, image: t.url, decimals: t.decimals })
     }
 }
