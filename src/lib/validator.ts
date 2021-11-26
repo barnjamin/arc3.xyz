@@ -5,7 +5,8 @@ function mdurl(nft: NFT): boolean {
 }
 
 function mdhash(nft: NFT): boolean {
-    return nft.token.metadataHash === Buffer.from(nft.metadata.toHash()).toString("base64")
+    return nft.token.metadataHash === Buffer.from(nft.metadata.toHash(true)).toString("base64") ||
+            nft.token.metadataHash === Buffer.from(nft.metadata.toHash()).toString("base64")
 }
 
 function total(nft: NFT): boolean {
