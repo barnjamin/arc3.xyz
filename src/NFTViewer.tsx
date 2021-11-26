@@ -45,7 +45,7 @@ export function NFTViewer(props: NFTViewerProps) {
         const mdProps = nft.metadata && nft.metadata["_raw"] !== undefined?(
             <div className='raw-metadata'>
                 <SyntaxHighlighter language='json' style={docco} wrapLongLines={true}  >
-                    {nft.metadata["_raw"]}
+                    {nft.metadata.toString(true)}
                 </SyntaxHighlighter>
             </div>
         ):<p>No metadata</p>
