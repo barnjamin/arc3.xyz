@@ -16,11 +16,19 @@ import {
 
 
 type AppProps = {
-  history: History
+  history: History,
+  location: Location,
 }
 
-
 function App(props: AppProps) {
+
+  const network = new URLSearchParams(props.location.search).get('network');
+  if (network) {
+    const idx = conf.findIndex(cfg => cfg.network === network);
+    if(idx > -1) {
+      sessionSetActiveConf(idx);
+    }
+  }
 
   const [activeConf, setActiveConf] = React.useState(sessionGetActiveConf())
 
