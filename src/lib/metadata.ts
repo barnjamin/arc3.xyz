@@ -76,6 +76,7 @@ export class Metadata {
     }
 
     toString(fmt: Boolean = false): string {
+        if(this._raw === undefined) this._raw = JSON.stringify({...this}, omitRawAndEmpty)
         return JSON.stringify(JSON.parse(this._raw) , omitRawAndEmpty, fmt?2:0)
     }
 
