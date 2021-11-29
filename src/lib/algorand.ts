@@ -15,7 +15,7 @@ function setOrUndef(addr: string): string | undefined {
 
 export async function createToken(wallet: Wallet, activeConf: number, token: Token, md: Metadata): Promise<number> {
     const addr      = wallet.getDefaultAccount()
-    const suggested = await getSuggested(activeConf, 10)
+    const suggested = await getSuggested(activeConf, 100)
 
     const create_txn =  makeAssetCreateTxnWithSuggestedParamsFromObject({
         from: addr,
