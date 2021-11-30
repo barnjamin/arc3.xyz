@@ -55,10 +55,17 @@ export function Minter(props: MinterProps){
         const md = await captureMetadata()
         setMeta(md)
 
-        const cid = await putToIPFS(props.activeConf, fileObj, md)
-        setCID(cid)
 
-        setIsMinting(true)
+        try {
+            const cid = await putToIPFS(props.activeConf, fileObj, md)
+            setCID(cid)
+            setIsMinting(true)
+        } catch (error) {
+            alert("Failed to upload image to ipfs :(")
+            setLoading(false)
+            return
+        }
+
     }
 
     function handleCancelMint(){

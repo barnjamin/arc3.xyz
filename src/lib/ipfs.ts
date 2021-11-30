@@ -13,14 +13,10 @@ import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 
 export async function putToIPFS(activeConf: number, file: File, md: Metadata): Promise<string> {
     const storage = new Web3Storage({token: conf[activeConf].storageToken})
-    try {
-      const imgAdded = await storage.put([file], {wrapWithDirectory: false})
-      md.image = ipfsURL(imgAdded)
+    const imgAdded = await storage.put([file], {wrapWithDirectory: false})
+    md.image = ipfsURL(imgAdded)
 
-      return await storage.put([md.toFile()], {wrapWithDirectory: false})
-
-    } catch (err) { console.error(err) }
-    return ""
+    return await storage.put([md.toFile()], {wrapWithDirectory: false})
 }
 
 
