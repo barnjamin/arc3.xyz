@@ -26,10 +26,10 @@ export function NFTViewer(props: NFTViewerProps) {
 
         let subscribed = true
 
-        NFT.fromAssetId(props.activeConf, assetId).then((nft)=>{ 
+        NFT.fromAssetId(props.activeConf, assetId).then((nft)=>{
             if(!subscribed) return
 
-            setNFT(nft) 
+            setNFT(nft)
             setLoaded(true)
         })
 
@@ -52,9 +52,9 @@ export function NFTViewer(props: NFTViewerProps) {
 
         const arc3Invalids = validateArc3(nft).map(test=>{
             if(test.pass)
-                return (<li key={test.name} >  <Icon icon='tick' intent='success' /> <b>{test.name}</b></li>) 
+                return (<li key={test.name} >  <Icon icon='tick' intent='success' /> <b>{test.name}</b></li>)
 
-            return (<li key={test.name} > <Icon icon='cross' intent='danger' /> <b>{test.name}</b> </li>) 
+            return (<li key={test.name} > <Icon icon='cross' intent='danger' /> <b>{test.name}</b> </li>)
         })
 
         meta = (
@@ -68,7 +68,7 @@ export function NFTViewer(props: NFTViewerProps) {
                         <tr><td><b>Unit Name:</b></td><td>{nft.token.unitName}</td></tr>
                         <tr><td><b>Total:</b></td><td>{nft.token.total}</td></tr>
                         <tr><td><b>Decimals:</b></td><td>{nft.token.decimals}</td></tr>
-                        <tr><td><b>URL:     </b></td><td><a rel="noreferrer" target="_blank" href={resolveProtocol(props.activeConf, nft.token.url)} >{nft.token.url}</a></td></tr>
+                        <tr><td><b>URL:     </b></td><td><a rel="noreferrer" target="_blank" href={resolveProtocol(props.activeConf, nft.token.url, nft.token.reserve)} >{nft.token.url}</a></td></tr>
                         <tr><td><b>Creator: </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.creator)}  >{nft.token.creator}</a></td></tr>
                         <tr><td><b>Manager: </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.manager)}  >{nft.token.manager}</a></td></tr>
                         <tr><td><b>Reserve: </b></td><td><a rel="noreferrer" target="_blank" href={getAddrUrl(props.activeConf, nft.token.reserve)}  >{nft.token.reserve}</a></td></tr>
@@ -84,7 +84,7 @@ export function NFTViewer(props: NFTViewerProps) {
             <div className='content'>
                 {mdProps}
             </div>
-            <hr/> 
+            <hr/>
             <h5>ARC3 tests:</h5>
             <div className='content'>
                 <ul>
@@ -98,9 +98,9 @@ export function NFTViewer(props: NFTViewerProps) {
     return (
         <div className='container'>
             <Card elevation={Elevation.THREE} >
-                <div className='container'> 
+                <div className='container'>
                     <div className='content content-piece'>
-                        {img}       
+                        {img}
                     </div>
                     <div className='content-info'>
                         {meta}

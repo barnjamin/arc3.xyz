@@ -8532,6 +8532,11 @@ multiformats@^9.0.0, multiformats@^9.0.4, multiformats@^9.3.0, multiformats@^9.4
   resolved "https://registry.npmjs.org/multiformats/-/multiformats-9.4.7.tgz"
   integrity sha512-fZbcdf7LnvokPAZYkv4TLXe7PAg9sQ5qLXcwrAmZOloEb2+5FtFiAY+l3/9wsu4oTJXTV3JSggFQQ2dJLS01vA==
 
+multiformats@^9.5.8:
+  version "9.5.8"
+  resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-9.5.8.tgz#b8b8fa80210b31a96bea2b59c26970b5815e5a5e"
+  integrity sha512-GY154q1yPPdHX4ArXHE8Z1Mm9BxZcJetzEqfwQg/ongo91qIJDHJEio3zboHIKGEvBLrhVqKwlRuDqwa7+xECQ==
+
 murmurhash3js-revisited@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/murmurhash3js-revisited/-/murmurhash3js-revisited-3.0.0.tgz"

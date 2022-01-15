@@ -1,11 +1,11 @@
-import { Wallet } from 'algorand-session-wallet';
-import algosdk, {Algodv2, makeAssetCreateTxnWithSuggestedParamsFromObject} from 'algosdk'
-import { NFT, Token } from './nft';
+import { Wallet } from 'algorand-session-wallet'
+import algosdk, { Algodv2, makeAssetCreateTxnWithSuggestedParamsFromObject } from 'algosdk'
+import { NFT, Token } from './nft'
 import { Metadata } from './metadata'
 import { conf } from './config'
 
 function getClient(activeConf: number): Algodv2 {
-  return new algosdk.Algodv2("", conf[activeConf].algod, "")
+  return new algosdk.Algodv2(conf[activeConf].token, conf[activeConf].algod, conf[activeConf].port)
 }
 
 
@@ -66,13 +66,12 @@ export async function sendWait(activeConf: number, signed: any[]): Promise<any> 
     const client = getClient(activeConf)
     try {
         const {txId} = await client.sendRawTransaction(signed.map((t)=>{return t.blob})).do()
-        const result = await waitForConfirmation(client, txId, 3)
-        return result 
-    } catch (error) { 
+        return await waitForConfirmation(client, txId, 3)
+    } catch (error) {
         console.error(error)
     }
 
-    return undefined 
+    return undefined
 }
 
 async function waitForConfirmation(client, txId, timeout) {
@@ -86,18 +85,18 @@ async function waitForConfirmation(client, txId, timeout) {
 
     const startround = status['last-round'] + 1;
     let currentround = startround;
-  
+
     /* eslint-disable no-await-in-loop */
     while (currentround < startround + timeout) {
-      const pending = await client 
+      const pending = await client
         .pendingTransactionInformation(txId)
         .do();
 
       if (pending !== undefined) {
-        if ( pending['confirmed-round'] !== null && pending['confirmed-round'] > 0) 
+        if ( pending['confirmed-round'] !== null && pending['confirmed-round'] > 0)
           return pending;
-  
-        if ( pending['pool-error'] != null && pending['pool-error'].length > 0) 
+
+        if ( pending['pool-error'] != null && pending['pool-error'].length > 0)
           throw new Error( `Transaction Rejected pool error${pending['pool-error']}`);
       }
 
