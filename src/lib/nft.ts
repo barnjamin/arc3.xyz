@@ -8,7 +8,7 @@ import { decodeAddress } from 'algosdk'
 import { CID } from 'multiformats/cid'
 import * as mfsha2 from 'multiformats/hashes/sha2'
 import * as digest from 'multiformats/hashes/digest'
-import { CIDVersion,  } from 'multiformats/types/cid'
+import { CIDVersion } from 'multiformats/types/cid'
 
 /*
 
@@ -35,13 +35,13 @@ export function resolveProtocol (activeConf: number, url: string, reserveAddr: s
     if (url.endsWith(ARC3_URL_SUFFIX))
         url = url.slice(0, url.length - ARC3_URL_SUFFIX.length)
 
-    const chunks = url.split('://')
+    let chunks = url.split('://')
     console.log('resolve protocol:', url)
     console.log(chunks)
-
-    // Check prefix of if equal to ipfscid
-    if (chunks[0] === 'ipfs' && chunks[1].startsWith('{ipfscid:')) {
-        // Look for something like: ipfs://{ipfscid:1:raw:reserve:sha2-256} and parse into components
+    // Check if prefix is template-ipfs and if {ipfscid:..} is where CID would normally be
+    if (chunks[0] === 'template-ipfs' && chunks[1].startsWith('{ipfscid:')) {
+        // Look for something like: template:ipfs://{ipfscid:1:raw:reserve:sha2-256} and parse into components
+        chunks[0] = 'ipfs'
         const cidComponents = chunks[1].split(':')
         if (cidComponents.length !== 5) {
             // give up
@@ -55,18 +55,18 @@ export function resolveProtocol (activeConf: number, url: string, reserveAddr: s
             console.log('unsupported hash:', cidHash)
             return url
         }
-        if (cidCodec !== "raw" && cidCodec !== "dag-pb") {
+        if (cidCodec !== 'raw' && cidCodec !== 'dag-pb') {
             console.log('unsupported codec:', cidCodec)
             return url
         }
-        if (asaField !== "reserve") {
+        if (asaField !== 'reserve') {
             console.log('unsupported asa field:', asaField)
             return url
         }
         let cidCodecCode
-        if( cidCodec === "raw") {
+        if (cidCodec === 'raw') {
             cidCodecCode = 0x55
-        } else if (cidCodec === "dag-pb") {
+        } else if (cidCodec === 'dag-pb') {
             cidCodecCode = 0x70
         }
 
@@ -74,7 +74,7 @@ export function resolveProtocol (activeConf: number, url: string, reserveAddr: s
         const addr = decodeAddress(reserveAddr)
         const mhdigest = digest.create(mfsha2.sha256.code, addr.publicKey)
 
-        const cid = CID.create(cidVersionInt, cidCodecCode, mhdigest) // 0x70 is dag-protobuf
+        const cid = CID.create(cidVersionInt, cidCodecCode, mhdigest)
         console.log('switching to id:', cid.toString())
         chunks[1] = cid.toString() + '/' + chunks[1].split('/').slice(1).join('/')
         console.log('redirecting to ipfs:', chunks[1])
