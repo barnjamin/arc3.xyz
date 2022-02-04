@@ -32,8 +32,11 @@ git clone https://github.com/barnjamin/arc3.xyz.git
 cd arc3.xyz
 yarn install
 ```
-Set your key in the `storageToken` field in `src/config.json` and update whatever other fields there you'd like 
 
+In this repo we're using a cloudflare worker to add the bearer token to the headers before proxying the request to web3.storage. This helps keep the key secret but for testing purposes you can set your storage token in a local config file.
+
+1. Set your key in the `storageToken` field in `src/config.json` and update whatever other fields there you'd like 
+2. Uncomment the storage var in `src/lib/ipfs.ts` and comment the one pointing to the barnji worker
 
 
 ```

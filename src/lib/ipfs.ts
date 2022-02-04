@@ -12,6 +12,10 @@ import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js'
 
 
 export async function putToIPFS(activeConf: number, file: File, md: Metadata): Promise<string> {
+    // Uncomment this line after you've set your storage token
+    //const storage = new Web3Storage({token: conf[activeConf].storageToken})
+
+    // We hide the token for this site behind a cloudflare worker so no sneaky petes can delete our precious files
     const storage = new Web3Storage({token: " ", endpoint:"https://worker.barnji.workers.dev"})
     const imgAdded = await storage.put([file], {wrapWithDirectory: false})
     md.image = ipfsURL(imgAdded)

@@ -1,4 +1,5 @@
 type Config = {
+    storageToken: string; // Storage token for web3.storage
     network: string;       // The network to use for creating nfts
     ipfsGateway: string;   // The IPFS gateway url for retrieving files
     algod: string          // The Algod api url to use
