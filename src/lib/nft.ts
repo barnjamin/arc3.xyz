@@ -45,7 +45,7 @@ export function resolveProtocol(activeConf: number, url: string): string {
     return url
 }
 
-export async function imageIntegrity(file: File): Promise<string> {
+export async function mediaIntegrity(file: File): Promise<string> {
     const buff = await file.arrayBuffer()
     const bytes = new Uint8Array(buff)
     const hash = new Uint8Array(sha256.digest(bytes));
@@ -181,21 +181,20 @@ export class NFT {
         return this.token.valid()? this.token.id : 0
     }
 
-    imgURL(activeConf: number): string {
+    mediaURL(activeConf: number): string {
         if(!this.valid()) return "https://dummyimage.com/640x360/fff/aaa"
 
-
         // Try to resolve the protocol, if one is set 
-        const url = resolveProtocol(activeConf, this.metadata.image)
+        const url = resolveProtocol(activeConf, this.metadata.mediaURL())
 
         // If the url is different, we resolved it correctly
-        if(url !== this.metadata.image) return url
+        if(url !== this.metadata.mediaURL()) return url
 
         // It may be a relative url stored within the same directory as the metadata file
         // Lop off the METADATA_FILE bit and append image path 
         if(this.token.url.endsWith(METADATA_FILE)){
             const dir = this.token.url.substring(0,this.token.url.length-METADATA_FILE.length)
-            return resolveProtocol(activeConf, dir)+this.metadata.image
+            return resolveProtocol(activeConf, dir)+this.metadata.mediaURL()
         }
 
         // give up

@@ -1,10 +1,12 @@
 import * as React from 'react'
 import { InputGroup, Button, Elevation, FileInput, Card, Dialog, Classes, Collapse, NumericInput, FormGroup, Switch } from "@blueprintjs/core"
-import {  NFT, Token, imageIntegrity } from './lib/nft'
+import {  NFT, Token, mediaIntegrity } from './lib/nft'
 import {Metadata} from './lib/metadata'
 import { SessionWallet } from 'algorand-session-wallet'
 import { putToIPFS } from './lib/ipfs'
 import{ useHistory } from 'react-router-dom'
+import { getTypeFromMimeType } from './lib/metadata'
+import { StringMappingType } from 'typescript'
 
 export type MinterProps = {
     activeConf: number
@@ -17,7 +19,7 @@ export function Minter(props: MinterProps){
 
     const [meta, setMeta]               = React.useState(new Metadata())
     const [loading, setLoading]         = React.useState(false)
-    const [imgSrc, setImgSrc]           = React.useState<string>();
+    const [mediaSrc, setMediaSrc]           = React.useState<string>();
     const [fileObj, setFileObj]         = React.useState<File>();
 
     const [extraProps, setExtraProps]   = React.useState([])
@@ -35,16 +37,31 @@ export function Minter(props: MinterProps){
         setFileObj(file)
 
         const reader = new FileReader();
-        reader.onload = (e: any) => {  setImgSrc(e.target.result) }
+        reader.onload = (e: any) => {  setMediaSrc(e.target.result) }
         reader.readAsDataURL(file);
 
         setMeta((meta)=>{
-            return new Metadata({
+            const metaObj = {
                 ...meta,
-                image: file.name,
-                image_mimetype: file.type,
                 properties:{...meta.properties, size:file.size}
-            })
+            }
+
+            switch(getTypeFromMimeType(file.type)){
+                case 'audio':
+                    metaObj.animation_url = file.name
+                    metaObj.animation_url_mimetype = file.type
+                    break;
+                case 'video':
+                    metaObj.animation_url = file.name
+                    metaObj.animation_url_mimetype = file.type
+                    break;
+                case 'image':
+                    metaObj.image = file.name
+                    metaObj.image_mimetype = file.type
+                    break;
+            }
+
+            return new Metadata(metaObj)
         })
     }
 
@@ -54,14 +71,12 @@ export function Minter(props: MinterProps){
 
         const md = await captureMetadata()
         setMeta(md)
-
-
         try {
             const cid = await putToIPFS(props.activeConf, fileObj, md)
             setCID(cid)
             setIsMinting(true)
         } catch (error) {
-            alert("Failed to upload image to ipfs :(")
+            alert("Failed to upload media to ipfs :(")
             setLoading(false)
             return
         }
@@ -116,23 +131,38 @@ export function Minter(props: MinterProps){
 
     async function captureMetadata(): Promise<Metadata> {
         const eprops = extraProps.reduce((all, ep)=>{ return {...all, [ep.name]:ep.value} }, {})
-        const integ = await imageIntegrity(fileObj)
-        return new Metadata({
+        const integ = await mediaIntegrity(fileObj)
+
+        const md = {
+            ...meta,
             name:           token.name,
             unitName:       token.unitName,
             decimals:       token.decimals,
             description:    meta.description,
-            image_mimetype: meta.image_mimetype,
-            image_integrity:integ, 
             properties:     { ...eprops, ...meta.properties}
-        })
+        } as Metadata
+
+        switch(getTypeFromMimeType(meta.mediaType())) {
+            case 'image':
+                md.image_integrity = integ
+                break;
+            case 'audio':
+                md.animation_url_integrity = integ
+                break;
+            case 'video':
+                md.animation_url_integrity = integ
+                break;
+        }
+
+        return new Metadata(md)
     }
 
     return (
         <div className='container'>
             <Card elevation={Elevation.TWO} className='mint-card' >
                 <Uploader
-                    imgSrc={imgSrc}
+                    mediaSrc={mediaSrc}
+                    file={fileObj}
                     setFile={setFile}
                     {...meta} />
 
@@ -328,8 +358,38 @@ export function Minter(props: MinterProps){
 
 }
 
+
+type MediaDisplayProps = {
+    mimeType: string
+    mediaSrc: string | undefined
+}
+
+function MediaDisplay(props: MediaDisplayProps){
+    const [type, _] = props.mimeType.split("/")
+
+    switch(type) {
+        case "audio":
+            return (
+                <audio id="uploaded-media" controls>
+                    <source src={props.mediaSrc} type={props.mimeType} />
+                </audio>
+            )
+        case "video":
+            return (
+                <video id="uploaded-media" controls>
+                    <source src={props.mediaSrc} type={props.mimeType} />
+                </video>
+            )
+        default:
+            return (
+                <img id="uploaded-media" alt="NFT" src={props.mediaSrc} />
+            )
+    }
+}
+
 type UploaderProps = {
-    imgSrc: string | undefined
+    mediaSrc: string | undefined
+    file: File
     setFile(f: File): void
 };
 
@@ -340,7 +400,7 @@ function Uploader(props: UploaderProps) {
         props.setFile(event.target.files.item(0))
     }
 
-    if (props.imgSrc === undefined || props.imgSrc === "" ) return (
+    if (props.mediaSrc === undefined || props.mediaSrc === "" ) return (
         <div className='container'>
             <div className='content content-piece' >
                 <FileInput large={true} disabled={false} text="Choose file..." onInputChange={captureFile} />
@@ -349,10 +409,11 @@ function Uploader(props: UploaderProps) {
     )
 
 
+
     return (
         <div className='container' >
             <div className='content content-piece'>
-                <img id="gateway-link" alt="NFT" src={props.imgSrc} />
+                <MediaDisplay mimeType={props.file.type} mediaSrc={props.mediaSrc} />
             </div>
         </div>
     )
@@ -393,7 +454,7 @@ function MintDialog(props: MintDialogProps){
     return (
         <Dialog isOpen={props.isMinting} title="Mint it" >
             <div className={Classes.DIALOG_BODY}>
-                <p>File uploaded to ipfs {props.md.image} </p>
+                <p>File uploaded to ipfs {props.md.mediaURL()} </p>
                 <p>Click "Mint" to create ASA</p>
             </div>
             <div className={Classes.DIALOG_FOOTER}>

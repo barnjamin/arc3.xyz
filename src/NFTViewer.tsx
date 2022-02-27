@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { Elevation, Card, Icon } from "@blueprintjs/core"
 import { NFT, resolveProtocol  } from './lib/nft'
-import { Metadata } from './lib/metadata'
+import { getTypeFromMimeType, Metadata } from './lib/metadata'
 import { SessionWallet } from 'algorand-session-wallet'
 import {useParams} from 'react-router-dom'
 import { getAddrUrl, getAsaUrl } from './lib/config'
 import { validateArc3 } from './lib/validator'
+import {MediaDisplay} from './MediaDisplay'
 
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { docco } from  'react-syntax-highlighter/dist/esm/styles/hljs'
@@ -23,12 +24,9 @@ export function NFTViewer(props: NFTViewerProps) {
 
     React.useEffect(()=>{
         setLoaded(false)
-
         let subscribed = true
-
         NFT.fromAssetId(props.activeConf, assetId).then((nft)=>{ 
             if(!subscribed) return
-
             setNFT(nft) 
             setLoaded(true)
         })
@@ -36,11 +34,12 @@ export function NFTViewer(props: NFTViewerProps) {
         return ()=>{ subscribed = false }
     }, [assetId, props.activeConf])
 
-    let img = <div></div>
+    let media = <div></div>
     let meta = <div></div>
 
     if(loaded){
-        img = <img alt='nft' className='bp3-elevation-3' src={nft.imgURL(props.activeConf)}/>
+        console.log(nft)
+        media = <MediaDisplay mimeType={nft.metadata.mimeType()} mediaSrc={nft.mediaURL(props.activeConf)} />
 
         const mdProps = nft.metadata && nft.metadata["_raw"] !== undefined?(
             <div className='raw-metadata'>
@@ -100,7 +99,7 @@ export function NFTViewer(props: NFTViewerProps) {
             <Card elevation={Elevation.THREE} >
                 <div className='container'> 
                     <div className='content content-piece'>
-                        {img}       
+                        {media}       
                     </div>
                     <div className='content-info'>
                         {meta}

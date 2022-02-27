@@ -5,9 +5,12 @@ import { Metadata } from './metadata'
 import { conf } from './config'
 
 function getClient(activeConf: number): Algodv2 {
-  return new algosdk.Algodv2("", conf[activeConf].algod, "")
+  const ac = conf[activeConf]
+  const token = ac.algodToken?ac.algodToken:""
+  const host = ac.algod?ac.algod:""
+  const port = ac.algod?ac.algod:0
+  return new algosdk.Algodv2(token, host, port)
 }
-
 
 function setOrUndef(addr: string): string | undefined {
   return addr===""?undefined:addr
@@ -57,6 +60,9 @@ export async function getCollection(activeConf: number, address: string): Promis
       plist.push(getToken(activeConf, results['assets'][a]['asset-id']))
   }
 
+  console.log(results)
+  console.log(plist)
+
   const assets = await Promise.all(plist)
   const collectionRequests = assets.map((a)=>{ return NFT.fromToken(activeConf, a) })
   return Promise.all(collectionRequests)
@@ -66,45 +72,11 @@ export async function sendWait(activeConf: number, signed: any[]): Promise<any> 
     const client = getClient(activeConf)
     try {
         const {txId} = await client.sendRawTransaction(signed.map((t)=>{return t.blob})).do()
-        const result = await waitForConfirmation(client, txId, 3)
+        const result = await algosdk.waitForConfirmation(client, txId, 3)
         return result 
     } catch (error) { 
         console.error(error)
     }
 
     return undefined 
-}
-
-async function waitForConfirmation(client, txId, timeout) {
-    if (client == null || txId == null || timeout < 0) {
-      throw new Error('Bad arguments.');
-    }
-
-    const status = await client.status().do();
-    if (typeof status === 'undefined')
-      throw new Error('Unable to get node status');
-
-    const startround = status['last-round'] + 1;
-    let currentround = startround;
-  
-    /* eslint-disable no-await-in-loop */
-    while (currentround < startround + timeout) {
-      const pending = await client 
-        .pendingTransactionInformation(txId)
-        .do();
-
-      if (pending !== undefined) {
-        if ( pending['confirmed-round'] !== null && pending['confirmed-round'] > 0) 
-          return pending;
-  
-        if ( pending['pool-error'] != null && pending['pool-error'].length > 0) 
-          throw new Error( `Transaction Rejected pool error${pending['pool-error']}`);
-      }
-
-      await client.statusAfterBlock(currentround).do();
-      currentround += 1;
-    }
-
-    /* eslint-enable no-await-in-loop */
-    throw new Error(`Transaction not confirmed after ${timeout} rounds!`);
 }

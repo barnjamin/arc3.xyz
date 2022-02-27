@@ -17,8 +17,19 @@ export async function putToIPFS(activeConf: number, file: File, md: Metadata): P
 
     // We hide the token for this site behind a cloudflare worker so no sneaky petes can delete our precious files
     const storage = new Web3Storage({token: " ", endpoint:"https://worker.barnji.workers.dev"})
-    const imgAdded = await storage.put([file], {wrapWithDirectory: false})
-    md.image = ipfsURL(imgAdded)
+    const mediaAdded = await storage.put([file], {wrapWithDirectory: false})
+    ipfsURL(mediaAdded)
+    switch(md.mediaType()){
+        case 'image':
+            md.image = ipfsURL(mediaAdded)
+            break
+        case 'audio':
+            md.animation_url = ipfsURL(mediaAdded)
+            break
+        case 'video':
+            md.animation_url = ipfsURL(mediaAdded)
+            break
+    }
 
     return await storage.put([md.toFile()], {wrapWithDirectory: false})
 }

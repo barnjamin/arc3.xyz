@@ -118,3 +118,7 @@
 .container-mint {
 	justify-content: flex-end;
 }
+
+.media-display {
+	padding: 10px;
+}
