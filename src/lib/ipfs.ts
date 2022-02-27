@@ -1,6 +1,5 @@
 import { ipfsURL } from './nft'
 import {Metadata} from './metadata'
-import {conf} from './config'
 
 /*
  Currently an issue with resolving ipfs-car module in web3.storage when using react-scripts

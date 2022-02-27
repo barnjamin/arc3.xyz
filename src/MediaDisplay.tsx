@@ -1,3 +1,4 @@
+import { getTypeFromMimeType } from "./lib/metadata"
 
 type MediaDisplayProps = {
     mimeType: string
@@ -5,7 +6,7 @@ type MediaDisplayProps = {
 }
 
 export function MediaDisplay(props: MediaDisplayProps){
-    const [type, _] = props.mimeType.split("/")
+    const type = getTypeFromMimeType(props.mimeType)
 
     let media = <div></div>
     switch(type) {
@@ -30,7 +31,7 @@ export function MediaDisplay(props: MediaDisplayProps){
     }
 
     return (
-        <div className='media-display' >
+        <div className='media-display content' >
             {media}
         </div>
     )

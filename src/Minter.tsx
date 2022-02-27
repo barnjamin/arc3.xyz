@@ -6,7 +6,6 @@ import { SessionWallet } from 'algorand-session-wallet'
 import { putToIPFS } from './lib/ipfs'
 import{ useHistory } from 'react-router-dom'
 import { getTypeFromMimeType } from './lib/metadata'
-import { StringMappingType } from 'typescript'
 
 export type MinterProps = {
     activeConf: number
