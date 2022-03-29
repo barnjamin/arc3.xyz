@@ -1,17 +1,17 @@
 [{
-    "ipfsGateway":"https://ipfs.io/ipfs/",
+    "ipfsGateway":"https://cloudflare-ipfs.com/ipfs/",
     "blockExplorer":"https://algoexplorer.io/",
-    "algod":"https://algoexplorerapi.io",
+    "algod":"https://mainnet-api.algonode.cloud",
     "network":"MainNet"
 },
 {
-    "ipfsGateway":"https://ipfs.io/ipfs/",
+    "ipfsGateway":"https://cloudflare-ipfs.com/ipfs/",
     "blockExplorer":"https://testnet.algoexplorer.io/",
-    "algod":"https://testnet.algoexplorerapi.io",
+    "algod":"https://testnet-api.algonode.cloud",
     "network":"TestNet"
 },
 {
-    "ipfsGateway":"https://ipfs.io/ipfs/",
+    "ipfsGateway":"https://cloudflare-ipfs.com/ipfs/",
     "blockExplorer":"https://testnet.algoexplorer.io/",
     "algod":"http://localhost",
     "algodPort":4001,

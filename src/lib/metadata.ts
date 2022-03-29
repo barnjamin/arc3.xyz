@@ -6,13 +6,13 @@ export type Properties = {
 }
 
 export type LocalizationIntegrity = {
-    [key: string]: string 
+    [key: string]: string
 }
 
 export type Localization = {
-    uri: string 
-    default: string 
-    locales: string[] 
+    uri: string
+    default: string
+    locales: string[]
     integrity?: LocalizationIntegrity
 }
 
@@ -41,6 +41,8 @@ export class Metadata {
     image_integrity?: string = ""
     image_mimetype?: string = ""
 
+    reserve?: string = ""
+
     background_color?: string = ""
 
     external_url?: string = ""
@@ -65,7 +67,7 @@ export class Metadata {
             //am = SHA-512/256("arc0003/am" || SHA-512/256("arc0003/amj" || content of JSON metadata file) || e)
         }
 
-        if(this._raw === undefined) 
+        if(this._raw === undefined)
             this._raw = this.toString(false)
 
         const hash = sha256.create();
@@ -105,7 +107,7 @@ export class Metadata {
     }
 
     static fromToken(t: Token){
-        return new Metadata({name:t.name, image: t.url, decimals: t.decimals})
+        return new Metadata({name:t.name, image: t.url, decimals: t.decimals, reserve: t.reserve })
     }
 
 }

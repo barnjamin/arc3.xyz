@@ -14,7 +14,7 @@ export function getAddrUrl(idx: number, addr: string): string {
     return conf[idx].blockExplorer + "address/" + addr
 }
 export function getAsaUrl(idx: number, id: number): string {
-    return conf[idx].blockExplorer + "asset/" + id 
+    return conf[idx].blockExplorer + "asset/" + id
 }
 
 const activeConfKey = "active-conf"
