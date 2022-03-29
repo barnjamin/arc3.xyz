@@ -76,6 +76,7 @@ export default function AlgorandWalletConnector(props:AlgorandWalletConnectorPro
 
     const walletOptions = []
     for(const [k,v] of Object.entries(allowedWallets)){
+        if(k === 'insecure-wallet') continue
         walletOptions.push((
         <li key={k}>
             <Button id={k}

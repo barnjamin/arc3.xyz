@@ -5,6 +5,7 @@ import {useParams} from 'react-router-dom'
 import { conf } from './lib/config'
 import {getCollection} from './lib/algorand' 
 import { validArc3 } from './lib/validator'
+import { MediaDisplay } from './MediaDisplay'
 
 export type CollectionProps = {
     activeConf: number
@@ -19,13 +20,16 @@ export function Collection(props: CollectionProps) {
 
     React.useEffect(()=>{
         setLoaded(false)
+        console.log(address)
         getCollection(props.activeConf, address).then((collection)=>{
             setCollection(collection)
             setLoaded(true)
         })
+
     }, [address, props.activeConf])
 
     let nfts = [<h3 key='looking'>Checking for NFTs...</h3>]
+
     if(loaded ){
         if(collection.length>0){
             nfts = collection.filter((nft)=>{
@@ -34,7 +38,7 @@ export function Collection(props: CollectionProps) {
                 const icon = validArc3(nft)?"confirm":"circle"
                 return (
                 <Card className='content-collection-item' key={nft.id()} elevation={Elevation.TWO}>
-                    <img alt='nft content' src={nft.imgURL(props.activeConf)} />
+                    <MediaDisplay mediaSrc={nft.mediaURL(props.activeConf)} mimeType={nft.metadata.mimeType()} />
                     <AnchorButton icon={icon} minimal={true} href={'/nft/'+nft.id()}><b>{nft.name()}</b></AnchorButton>
                 </Card>
                 )

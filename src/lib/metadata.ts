@@ -16,6 +16,11 @@ export type Localization = {
     integrity?: LocalizationIntegrity
 }
 
+// Just takes the first chunk of the mimetype (the type)
+export function getTypeFromMimeType(filetype: string): string {
+    const [type, _] = filetype.split("/")
+    return type
+}
 
 function omitRawAndEmpty(k,v){
     if(k === "_raw") return undefined;
@@ -32,12 +37,14 @@ export class Metadata {
     image: string = ""
     decimals?: number = 0
     unitName?: string = ""
+
     image_integrity?: string = ""
     image_mimetype?: string = ""
 
     reserve?: string = ""
 
     background_color?: string = ""
+
     external_url?: string = ""
     external_url_integrity?: string = ""
     external_url_mimetype?: string = ""
@@ -69,7 +76,7 @@ export class Metadata {
     }
 
     valid(): boolean {
-        return this.image !== ""
+        return this.image !== "" || this.animation_url !== "" || this.external_url !== ""
     }
 
     toFile(): File {
@@ -82,7 +89,25 @@ export class Metadata {
         return JSON.stringify(JSON.parse(this._raw) , omitRawAndEmpty, fmt?2:0)
     }
 
+    mimeType(): string {
+        if(this.animation_url !== "") return this.animation_url_mimetype;
+        if(this.external_url_mimetype !== "") return this.external_url_mimetype;
+        return this.image_mimetype
+    }
+
+    mediaType(): string {
+        return getTypeFromMimeType(this.mimeType())
+    }
+
+    mediaURL(): string {
+        if(this.animation_url !== "") {
+            return this.animation_url
+        }
+        return this.image
+    }
+
     static fromToken(t: Token){
         return new Metadata({name:t.name, image: t.url, decimals: t.decimals, reserve: t.reserve })
     }
+
 }

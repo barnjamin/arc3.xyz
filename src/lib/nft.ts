@@ -8,7 +8,8 @@ import { decodeAddress } from 'algosdk'
 import { CID } from 'multiformats/cid'
 import * as mfsha2 from 'multiformats/hashes/sha2'
 import * as digest from 'multiformats/hashes/digest'
-import { CIDVersion } from 'multiformats/types/cid'
+import { CIDVersion } from 'multiformats/types/src/cid'
+// import { CIDVersion } from 'multiformats'
 
 /*
 
@@ -50,7 +51,7 @@ export function resolveProtocol (activeConf: number, url: string, reserveAddr: s
         }
         const [, cidVersion, cidCodec, asaField, cidHash] = cidComponents
 
-        const cidVersionInt = parseInt(cidVersion) as CIDVersion
+        // const cidVersionInt = parseInt(cidVersion) as CIDVersion
         if (cidHash.split('}')[0] !== 'sha2-256') {
             console.log('unsupported hash:', cidHash)
             return url
@@ -74,7 +75,7 @@ export function resolveProtocol (activeConf: number, url: string, reserveAddr: s
         const addr = decodeAddress(reserveAddr)
         const mhdigest = digest.create(mfsha2.sha256.code, addr.publicKey)
 
-        const cid = CID.create(cidVersionInt, cidCodecCode, mhdigest)
+        const cid = CID.create(parseInt(cidVersion) as CIDVersion, cidCodecCode, mhdigest)
         console.log('switching to id:', cid.toString())
         chunks[1] = cid.toString() + '/' + chunks[1].split('/').slice(1).join('/')
         console.log('redirecting to ipfs:', chunks[1])
@@ -95,7 +96,7 @@ export function resolveProtocol (activeConf: number, url: string, reserveAddr: s
     return url
 }
 
-export async function imageIntegrity (file: File): Promise<string> {
+export async function mediaIntegrity (file: File): Promise<string> {
     const buff = await file.arrayBuffer()
     const bytes = new Uint8Array(buff)
     const hash = new Uint8Array(sha256.digest(bytes))
@@ -231,20 +232,20 @@ export class NFT {
         return this.token.valid() ? this.token.id : 0
     }
 
-    imgURL (activeConf: number): string {
+    mediaURL (activeConf: number): string {
         if (!this.valid()) return 'https://dummyimage.com/640x360/fff/aaa'
 
         // Try to resolve the protocol, if one is set
-        const url = resolveProtocol(activeConf, this.metadata.image, this.metadata.reserve)
+        const url = resolveProtocol(activeConf, this.metadata.mediaURL(), this.metadata.reserve)
 
         // If the url is different, we resolved it correctly
-        if (url !== this.metadata.image) return url
+        if (url !== this.metadata.mediaURL()) return url
 
         // It may be a relative url stored within the same directory as the metadata file
         // Lop off the METADATA_FILE bit and append image path
         if (this.token.url.endsWith(METADATA_FILE)) {
             const dir = this.token.url.substring(0, this.token.url.length - METADATA_FILE.length)
-            return resolveProtocol(activeConf, dir, this.metadata.reserve) + this.metadata.image
+            return resolveProtocol(activeConf, dir, this.metadata.reserve) + this.metadata.mediaURL()
         }
 
         // give up
