@@ -8,7 +8,7 @@ function getClient(activeConf: number): Algodv2 {
   const ac = conf[activeConf]
   const token = ac.algodToken?ac.algodToken:""
   const host = ac.algod?ac.algod:""
-  const port = ac.algod?ac.algod:0
+  const port = ac.algodPort?ac.algodPort:0
   return new algosdk.Algodv2(token, host, port)
 }
 
