@@ -39,7 +39,7 @@ export function NFTViewer(props: NFTViewerProps) {
 
     if(loaded){
         console.log(nft)
-        media = <MediaDisplay mimeType={nft.metadata.mimeType()} mediaSrc={nft.mediaURL(props.activeConf)} />
+        media = <MediaDisplay mimeType={nft.metadata.mimeType(false)} mediaSrc={nft.mediaURL(props.activeConf, false)} />
 
         const mdProps = nft.metadata && nft.metadata["_raw"] !== undefined?(
             <div className='raw-metadata'>

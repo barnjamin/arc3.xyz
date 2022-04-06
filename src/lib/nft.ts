@@ -232,20 +232,20 @@ export class NFT {
         return this.token.valid() ? this.token.id : 0
     }
 
-    mediaURL (activeConf: number): string {
+    mediaURL (activeConf: number, small: boolean): string {
         if (!this.valid()) return 'https://dummyimage.com/640x360/fff/aaa'
 
         // Try to resolve the protocol, if one is set
-        const url = resolveProtocol(activeConf, this.metadata.mediaURL(), this.metadata.reserve)
+        const url = resolveProtocol(activeConf, this.metadata.mediaURL(small), this.metadata.reserve)
 
         // If the url is different, we resolved it correctly
-        if (url !== this.metadata.mediaURL()) return url
+        if (url !== this.metadata.mediaURL(small)) return url
 
         // It may be a relative url stored within the same directory as the metadata file
         // Lop off the METADATA_FILE bit and append image path
         if (this.token.url.endsWith(METADATA_FILE)) {
             const dir = this.token.url.substring(0, this.token.url.length - METADATA_FILE.length)
-            return resolveProtocol(activeConf, dir, this.metadata.reserve) + this.metadata.mediaURL()
+            return resolveProtocol(activeConf, dir, this.metadata.reserve) + this.metadata.mediaURL(small)
         }
 
         // give up

@@ -89,18 +89,21 @@ export class Metadata {
         return JSON.stringify(JSON.parse(this._raw) , omitRawAndEmpty, fmt?2:0)
     }
 
-    mimeType(): string {
+    mimeType(small: boolean): string {
+        if(small) return this.image_mimetype
+
         if(this.animation_url !== "") return this.animation_url_mimetype;
         if(this.external_url_mimetype !== "") return this.external_url_mimetype;
+
         return this.image_mimetype
     }
 
-    mediaType(): string {
-        return getTypeFromMimeType(this.mimeType())
+    mediaType(small: boolean): string {
+        return getTypeFromMimeType(this.mimeType(small))
     }
 
-    mediaURL(): string {
-        if(this.animation_url !== "") {
+    mediaURL(small: boolean): string {
+        if(this.animation_url !== "" && !small) {
             return this.animation_url
         }
         return this.image

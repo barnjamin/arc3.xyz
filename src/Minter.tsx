@@ -141,7 +141,7 @@ export function Minter(props: MinterProps){
             properties:     { ...eprops, ...meta.properties}
         } as Metadata
 
-        switch(getTypeFromMimeType(meta.mediaType())) {
+        switch(getTypeFromMimeType(meta.mediaType(false))) {
             case 'image':
                 md.image_integrity = integ
                 break;
@@ -453,7 +453,7 @@ function MintDialog(props: MintDialogProps){
     return (
         <Dialog isOpen={props.isMinting} title="Mint it" >
             <div className={Classes.DIALOG_BODY}>
-                <p>File uploaded to ipfs {props.md.mediaURL()} </p>
+                <p>File uploaded to ipfs {props.md.mediaURL(false)} </p>
                 <p>Click "Mint" to create ASA</p>
             </div>
             <div className={Classes.DIALOG_FOOTER}>

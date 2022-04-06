@@ -18,7 +18,7 @@ export async function putToIPFS(activeConf: number, file: File, md: Metadata): P
     const storage = new Web3Storage({token: " ", endpoint:"https://worker.barnji.workers.dev"})
     const mediaAdded = await storage.put([file], {wrapWithDirectory: false})
     ipfsURL(mediaAdded)
-    switch(md.mediaType()){
+    switch(md.mediaType(false)){
         case 'image':
             md.image = ipfsURL(mediaAdded)
             break
