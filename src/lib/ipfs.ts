@@ -35,7 +35,7 @@ export async function putToIPFS(activeConf: number, file: File, md: Metadata): P
 
 
 export async function getMimeTypeFromIpfs(url: string): Promise<string> {
-    const req = new Request(url, { method:"HEAD", mode:'no-cors' })
+    const req = new Request(url)
     const resp = await fetch(req)
     return resp.headers.get("Content-Type")
 }
