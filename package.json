@@ -10,7 +10,7 @@
     "@types/react-dom": "^17.0.0",
     "@vscode/codicons": "^0.0.25",
     "algorand-session-wallet": "^1.6.1",
-    "algosdk": "^1.11.1",
+    "algosdk": "^1.21.1",
     "js-sha256": "^0.9.0",
     "multiformats": "^9.5.8",
     "node": "16.17.1",
@@ -25,7 +25,7 @@
     "yarn": "^1.22.19"
   },
   "scripts": {
-    "start": "HTTPS=true PORT=3030 react-scripts start",
+    "start": "HTTPS=true PORT=3030 react-scripts --max_old_space_size=4096 start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
